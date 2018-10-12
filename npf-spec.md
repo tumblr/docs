@@ -255,7 +255,7 @@ A Post with two content blocks, one being a regular paragraph and the next being
         {
             "type": "text",
             "subtype": "quote",
-            "text": "Genius without education is like silver to the Mayans.",
+            "text": "Genius without education is like silver in the mine.",
         }
     ]
 }
