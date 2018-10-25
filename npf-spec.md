@@ -608,7 +608,7 @@ Image blocks may contain a `color` field which provides the dominant colors stor
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-media | array | yes | An array of Media Objects which represent different available sizes of this image asset.
+media | array<[Media Object](#media-objects)> | yes | An array of Media Objects which represent different available sizes of this image asset.
 colors | object | no | Colors used in the image.
 feedback_token | string | no | A feedback token to use when this image block is a GIF Search result.
 poster | [Media Object](#media-objects) | no | For GIFs, this is a single-frame "poster"; see the [GIF Posters](#gif-posters) section.
@@ -715,7 +715,7 @@ An `audio` block represents a playable track. At a minimum, the `provider` field
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
 url | string | maybe | The URL to use for the audio block, if no `media` is present.
-media | string | maybe | The [Media Object](#media-objects) to use for the audio block, if no `url` is present.
+media | [Media Object](#media-objects) | maybe | The [Media Object](#media-objects) to use for the audio block, if no `url` is present.
 provider | string | no | The provider of the audio source, whether it's `tumblr` for native audio or a trusted third party.
 title | string | no | The title of the audio asset.
 artist | string | no | The artist of the audio asset.
@@ -806,13 +806,13 @@ A `video` block represents a playable video. At a minimum, the `provider` field 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
 url | string | maybe | The URL to use for the video block, if no `media` is present.
-media | string | maybe | The [Media Object](#media-objects) to use for the video block, if no `url` is present.
+media | [Media Object](#media-objects) | maybe | The [Media Object](#media-objects) to use for the video block, if no `url` is present.
 provider | string | no | The provider of the video, whether it's `tumblr` for native video or a trusted third party.
 embed_html | string | no | HTML code that could be used to embed this video into a webpage.
 embed_url | string | no | A URL to the embeddable content to use as an iframe.
 poster | [Media Object](#media-objects) | no | An image media object to use as a "poster" for the video, usually a single frame.
-metadata | object | no | Optional provider-specific metadata about the audio track.
-attribution | [Attribution Object](#attributions) | no | Optional attribution information about where the audio track came from.
+metadata | object | no | Optional provider-specific metadata about the video.
+attribution | [Attribution Object](#attributions) | no | Optional attribution information about where the video came from.
 can_autoplay_on_cellular | boolean | no | Whether this video can be played on a cellular connection.
 
 A `video` block may have a canonical `url` specified which, when visited in a web browser, will allow the video to be played. If the video can be embedded on a web page, then the block will have an `embed_html` field present and, optionally, the `embed_url`.
