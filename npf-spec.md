@@ -582,7 +582,7 @@ referenced by our Recommendation logging to track how users are using certain im
 }
 ```
 
-Image blocks may contain a `color` field which provides the dominant colors stored for the image in the Post metadata. The value is an object with string fields where the key starts with a c and ends with a number, eg. `c0`, `c1`, `c9`. The values are a string of three or six characters representing an RGB hex value. These values are typically used for creating a placeholder gradient while images are loading. The colors represented for an image are the same for every size of that image.
+Image blocks may contain a `colors` field which provides the dominant colors stored for the image in the Post metadata. The value is an object with string fields where the key starts with a c and ends with a number, eg. `c0`, `c1`, `c9`. The values are a string of three or six characters representing an RGB hex value. These values are typically used for creating a placeholder gradient while images are loading. The colors represented for an image are the same for every size of that image.
 
 ```JSON
 {
@@ -1137,6 +1137,7 @@ In the below example, blocks at index 0 and 1 are a part of @cyle's ask. Any rem
         "blocks": [0, 1],
         "attribution": {
             "type": "blog",
+            "url": "https://cyle.tumblr.com",
             "blog": {
                 "Standard API Short Blog Info object": "goes here, for @cyle's blog"
             }
@@ -1371,6 +1372,7 @@ The `layout` object will have a type of `ask` and an array of `blocks` that indi
             "blocks": [0, 1],
             "attribution": {
                 "type": "blog",
+                "url": "https://randerson.tumblr.com",
                 "blog": {
                     "Standard API Short Blog Info object": "goes here, for @randerson's blog"
                 }

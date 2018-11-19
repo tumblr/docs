@@ -177,7 +177,7 @@ Links describe an in-app or navigation behavior. A response may contain one or m
 
 An object in the `_links` hash will always contain `type` and `href` keys.
 
-A `_links` object may be of type `navigation`, `web`, or `action`.
+A `_links` object may be of type `navigation` or `action`.
 
 - `navigation`: A reference to some external URI to which the user can go.
 - `action`: A reference to some internal client state change in the application. The most common example would be to open a different view.
@@ -1385,7 +1385,7 @@ This returns a `201 Created` on successful post creation, or an error code. The 
 
 #### Errors and Error Subcodes
 
-The error codes here are the HTTP statuses that'll be returned in error states, the error subcodes are the specific subcodes also returned in some situations. 
+The error codes here are the HTTP statuses that'll be returned in error states, the error subcodes are the specific subcodes also returned in some situations.
 
 - `400 Bad Request` when the request has not provided the required data.
     - `400.8001` when an NPF JSON parameter is invalid or a bad format.
