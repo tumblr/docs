@@ -503,29 +503,6 @@ Property | Type | Required | Description
 -------- | ---- | -------- | -----------
 hex | string | yes | The color to use, in standard hex format, with leading #.
 
-#### Inline Format Type: Size
-
-The `size` type is included when the text deviates from the default text size in a way that is not captured by the subtype. For example, a `heading1` likely - but not necessarily - means larger text, but if the text uses a mixture of sizes or a different size from the usual `heading1` then we also send this `size` inline format type. Text that falls outside the `size` ranges will be assumed to be the subtype's default size.
-
-```JSON
-{
-    "type": "text",
-    "text": "Celebrate Pride Month",
-    "formatting": [
-        {
-            "start": 10,
-            "end": 15,
-            "type": "size",
-            "size": "small|big"
-        }
-    ]
-}
-```
-
-Property | Type | Required | Description
--------- | ---- | -------- | -----------
-size | string | yes | The text size for this particular range of text, one of `small` or `big`.
-
 ### Content Block Type: Image
 
 For image blocks, the only required field is a `media` array, which contains objects per-image-size. Each image media object contains fields for `type`, `url`, `width`, and `height`; see the [Media Objects](#media-objects) section for more details.
