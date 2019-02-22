@@ -233,7 +233,9 @@ A tag object represents a tag, and could have these fields:
 
 ### Neue Post Format objects
 
-Some routes will return Posts that have `type: blocks` and/or `is_blocks_post_format: true`, which means their content will be in the Neue Post Format. [See the NPF specification docs for more info!](npf-spec.md)
+Some routes will return Posts that have `type: blocks` and/or `is_blocks_post_format: true`, which means their content is available in the Neue Post Format. [See the NPF specification docs for more info!](npf-spec.md)
+
+Also, when making any request to our API that returns Posts, you may supply a `npf=true` query parameter to specify that you'd like all of the Posts' content returned in the Neue Post Format rather than the legacy format.
 
 ## Blog Methods
 
@@ -474,6 +476,7 @@ These fields are wrapped in a `users` object:
 | **notes_info** | Boolean | Indicates whether to return notes information (specify true or false). Returns note count and note metadata. | False | No |
 | **filter** | String | Specifies the post format to return, other than HTML: text – Plain text, no HTML; raw – As entered by the user (no post-processing); if the user writes in Markdown, the Markdown will be returned rather than HTML | None (HTML) | No |
 | **before** | Number | Returns posts published earlier than a specified Unix timestamp, in seconds. | False | No |
+| **npf** | Boolean | Returns posts' content in [NPF format](npf-spec.md) instead of the legacy format. | False | No |
 
 #### Response
 
@@ -1643,6 +1646,7 @@ Use this method to retrieve the dashboard that matches the OAuth credentials sub
 | **since_id** | Number | Return posts that have appeared after this ID; Use this parameter to page through the results: first get a set of posts, and then get posts since the last ID of the previous set. | 0 | No |
 | **reblog_info** | Boolean | Indicates whether to return reblog information (specify true or false). Returns the various `reblogged_` fields. | False | No |
 | **notes_info** | Boolean | Indicates whether to return notes information (specify true or false). Returns note count and note metadata. | False | No |
+| **npf** | Boolean | Returns posts' content in [NPF format](npf-spec.md) instead of the legacy format. | False | No |
 
 #### Response
 
