@@ -1427,13 +1427,21 @@ For example:
 
 ### `/posts/{post-id}` - Fetching a Post (Neue Post Format)
 
-This does NOT fetch _any_ post and return it in the Neue Post Format. This route fetches only single posts created in the Neue Post Format, with the intention of editing it. The specification for NPF is [here](npf-spec.md).
+This route can fetch a post, either legacy or NPF, and return it in either in the legacy or NPF format. The specification for NPF is [here](npf-spec.md). Note that NPF to legacy conversion is not valid yet, so the available conversions are: NPF -> NPF, legacy -> legacy, and legacy -> NPF.
+
+The intention of this route is to fetch a post for editing in either the NPF or legacy format.
 
 ### Method
 
 | URI | HTTP Method | Authentication |
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/posts/{post-id}` | GET | [OAuth](#authentication) |
+
+#### Request Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **post_format** | String | The format to serve the post as, either `npf` or `legacy`. | `npf`| No |
 
 ### Response
 
@@ -1443,6 +1451,8 @@ The response JSON object will contain:
 
 | Response Field | Type | Description |
 | -------------- | ---- | ----------- |
+| **object_type** | String | The timeline object type, always `post`. |
+| **type** | String | The post type. If formatting as NPF, the `type` will be `blocks`; if formatting as legacy, the `type` will be one of the original legacy types (`text`, `photo`, `quote`, `chat`, `link`, `video`, `audio`).
 | **id** | String | The post ID, intentionally a string instead of an integer, for 32bit device compatibility. |
 | **tumblelog_uuid** | String | The posting blog's unique identifier. |
 | **parent_post_id** | String | The parent post ID, if the post being fetched is a reblog. |
@@ -1451,56 +1461,6 @@ The response JSON object will contain:
 | **trail** | Array | Array of trail items, if the post being fetched is a reblog. |
 | **content** | Array | Array of the content blocks of the post itself. |
 | **layout** | Array | Array of the post's layout objects. |
-
-**Example response:**
-
-An example response of an original post being fetched:
-
-```JSON
-{
-    "meta": {
-        "msg": "OK",
-        "status": 200
-    },
-    "response": {
-        "id": "1234567891234567",
-        "tumblelog_uuid": "t:1234abcdef",
-        "content": [
-            {
-                "type": "text",
-                "text": "ello i'm oli"
-            }
-        ],
-        "layout": []
-    }
-}
-```
-
-An example response of a reblogged post being fetched:
-
-```JSON
-{
-    "meta": {
-        "msg": "OK",
-        "status": 200
-    },
-    "response": {
-        "id": "1234567891234567",
-        "tumblelog_uuid": "t:1234abcdef",
-        "parent_post_id": "987654321",
-        "parent_tumblelog_uuid": "t:ello9876",
-        "reblog_key": "elloelloelloello",
-        "trail": [],
-        "content": [
-            {
-                "type": "text",
-                "text": "ello i'm oli"
-            }
-        ],
-        "layout": []
-    }
-}
-```
 
 #### Errors and Error Subcodes
 
