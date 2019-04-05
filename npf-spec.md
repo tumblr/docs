@@ -38,6 +38,7 @@
     - [Attribution Type: Link](#attribution-type-link)
     - [Attribution Type: Blog](#attribution-type-blog)
     - [Attribution Type: App](#attribution-type-app)
+- [Mapping NPF Post Content to Legacy Post Types](#mapping-npf-post-content-to-legacy-post-types)
 
 ## Overview
 
@@ -1413,3 +1414,31 @@ The `display_text` value may differ for audio and video content:
 - Attributions for video content will try to be an artist/author name and title, if available.
 - Attributions for audio content will be "Listen on [provider name]" (ex. "Listen on Bandcamp") for all audio providers except SoundCloud, in which case it is only "Listen on" and expected to be appended with the SoundCloud logo by the client.
 
+## Mapping NPF Post Content to Legacy Post Types
+
+### NPF-to-Legacy-Type Waterfall for Original Posts
+
+By default, all new original posts created via NPF are considered legacy `regular`/`text` type posts. The semantic of a single "post type" no longer makes sense for NPF posts that can have a variety of content block types rather than emphasizing a single content type.
+
+However, for backwards compatibility, an original NPF post can be mapped back to a "determined legacy post type" using the following rules, evaluated in this order:
+
+1. If it has an `ask` layout object, it's considered an "answer" post (which is also known as a `note` type post).
+1. If it has a video block, it's considered a `video` post.
+1. If it has an image block, it's considered a `photo` post.
+1. If it has an audio block, it's considered an `audio` post.
+1. If it has a text block with the `quote` subtype, it's considered a `quote` post.
+1. If it has more than 1 text block with the `chat` subtype, it's considered a `chat`/`conversation` post.
+1. If it has a link block, it's considered a `link` post.
+1. Otherwise, it's considered a `text`/`regular` post.
+
+### Legacy Post Types of NPF Reblogs
+
+Reblogs of posts, whether done through NPF or legacy flows, retain both the original posts’ type and determined legacy type. This means that an NPF reblog is not necessarily `type: regular` as it always is for NPF original posts (i.e. when it is reblogging a legacy non-text post).
+
+### Changing Legacy Post Type on Edit
+
+If a user edits an NPF post, the determined type may change and be presented differently. For example, if a post has photo, video, and text blocks, and then the user edits it to remove the video block, its determined type will go from `video` to `photo`. This will have downstream effects for its reblogs, since reblogs use their root post's type and determined type.
+
+### Post Types in a Purely NPF World
+
+Someday all official Tumblr apps and services will parse the NPF JSON directly to determine a Post's type(s) when needed, rather than relying on the Post having a single type. With this in mind, for search and rendering purposes an NPF Post could potentially have _several_ legacy types. In the past, a Post on Tumblr has been considered an "atomic unit", alongside other encapsulated things such as a Blog or a Like. The most sematically accurate way to think about "Post types" in a purely NPF world is considering the Content Block as the "atomic unit" instead of the entire Post. A Post can have _several different types_ of content, rather than a Post assuming it only has one type of content.
