@@ -14,6 +14,8 @@ If you're looking for documentation for the old API, you can find it [here](http
     - [URI Structure](#uri-structure)
     - [Blog Identifiers](#blog-identifiers)
     - [Response Format](#response-format)
+    - [Rate Limits](#rate-limits)
+    - [Reporting Issues](#reporting-issues)
     - [About the API Documentation](#about-the-api-documentation)
 - [Official Tumblr API Client Libraries](#official-tumblr-api-client-libraries)
 - [Authentication](#authentication)
@@ -105,8 +107,10 @@ The `meta` object should always contain:
 
 | Field | Notes |
 | ----- | ----- |
-| **status** | the 3-digit HTTP Status-Code (e.g., `200`) |
-| **msg** | the HTTP Reason-Phrase (e.g., `OK`) |
+| **status** | The 3-digit HTTP Status-Code (e.g., `200`) |
+| **msg** | The HTTP Reason-Phrase (e.g., `OK`) |
+
+Even 4xx/5xx responses such as `400 Bad Request` or `500 Internal Server Error` should include this information, and the `response` may include more information about why you received the 4xx response.
 
 #### Example
 
@@ -120,7 +124,31 @@ The `meta` object should always contain:
 }
 ```
 
-All requests made with HTTP GET are [JSONP](http://en.wikipedia.org/wiki/JSONP)-enabled. To use JSONP, append `jsonp=` or `callback=` and the name of your callback function to the request. JSONP requests will always return an HTTP status code of 200 but will reflect the real status code in the meta field of the JSON response.
+All requests made with HTTP GET are [JSONP](https://en.wikipedia.org/wiki/JSONP) enabled. To use JSONP, append `jsonp=` or `callback=` and the name of your callback function to the request. JSONP requests will always return an HTTP status code of 200 but will reflect the real status code in the meta field of the JSON response.
+
+### Rate Limits
+
+Usage of the Tumblr API is rate limited in a few ways, but we respond with a `429 Limit Exceeded` response whenever a consumer hits one of these limits. There is a global rate limit for all usage of the API per consumer, as well as a few per-feature rate limits, such as how many posts you can make per day. The error message or headers you receive with the `429 Limit Exceeded` response should indicate what limit you've hit.
+
+These rate limits include:
+
+- 300 API calls per minute, per IP address.
+- 18,000 API calls per hour, per IP address.
+- 432,000 API calls per day, per IP address.
+- 1,000 API calls per hour, per consumer key.
+- 5,000 API calls per day, per consumer key.
+- 250 new posts (including reblogs) per day, per user.
+- 300 queued posts per day, per user.
+- 150 images uploaded per day, per user.
+- 200 follows per day, per user.
+- 1,000 likes per day, per user.
+- 10 new blogs per day, per user.
+- 10 videos uploaded per day, per user.
+- 5 minutes of total video uploaded per day, per user.
+
+### Reporting Issues
+
+If you run into problems with the Tumblr API, please use [our official support form](https://www.tumblr.com/support) to request help.
 
 ### About the API Documentation
 
@@ -137,13 +165,13 @@ These docs include some working examples. Please click them to your heart's cont
 
 Here is a list of official API client which will help you get up and running with your favorite language in no time.
 
-- [Javascript](http://github.com/tumblr/tumblr.js)
-- [Ruby](http://github.com/tumblr/tumblr_client)
-- [PHP](http://github.com/tumblr/tumblr.php)
-- [Java](http://github.com/tumblr/jumblr)
-- [Python](http://github.com/tumblr/pytumblr)
-- [Objective-C](http://github.com/tumblr/TMTumblrSDK)
-- [Go](http://github.com/tumblr/tumblrclient.go)
+- [Javascript](https://github.com/tumblr/tumblr.js)
+- [Ruby](https://github.com/tumblr/tumblr_client)
+- [PHP](https://github.com/tumblr/tumblr.php)
+- [Java](https://github.com/tumblr/jumblr)
+- [Python](https://github.com/tumblr/pytumblr)
+- [Objective-C](https://github.com/tumblr/TMTumblrSDK)
+- [Go](https://github.com/tumblr/tumblrclient.go)
 
 ## Authentication
 
@@ -290,7 +318,7 @@ This method returns general information about the blog, such as the title, numbe
          "title": "David's Log",
          "posts": 3456,
          "name": "david",
-         "url": "http:\/\/david.tumblr.com\/",
+         "url": "https:\/\/david.tumblr.com\/",
          "updated": 1308953007,
          "description": "<p><strong>Mr. Karp<\/strong> is tall and skinny, with
             unflinching blue eyes a mop of brown hair.\r\n
@@ -432,7 +460,7 @@ These fields are wrapped in a `users` object:
             {
                "name": "david",
                "following": true,
-               "url": "http:\/\/www.davidslog.com",
+               "url": "https:\/\/www.davidslog.com",
                "updated": 1308781073
             },
             {
@@ -526,7 +554,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "citriccomics",
             "id": 3507845453,
-            "post_url": "http:\/\/citriccomics.tumblr.com\/post\/3507845453",
+            "post_url": "https:\/\/citriccomics.tumblr.com\/post\/3507845453",
             "type": "text",
             "date": "2011-02-25 20:27:00 GMT",
             "timestamp": 1298665620,
@@ -540,18 +568,18 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
             ],
             "note_count": 14,
             "title": "Milky Dog",
-            "body": "<p><img src=\"http:\/\/media.tumblr.com\
+            "body": "<p><img src=\"https:\/\/media.tumblr.com\
                /tumblr_lh6x8d7LBB1qa6gy3.jpg\"\/><a href=\"http:\/\
                /citriccomics.com\/blog\/?p=487\" target=\"_blank\">TO READ
                THE REST CLICK HERE<\/a><br\/>\n\nMilky Dog was inspired by
                something <a href=\"http:\/\/gunadie.com\/naomi\"
                target=\"_blank\">Naomi Gee<\/a> wrote on twitter, I really
-               liked the hash tag <a href=\"http:\/\/twitter.com\/
+               liked the hash tag <a href=\"https:\/\/twitter.com\/
                search?q=%23MILKYDOG\" target=\"_blank\">#milkydog<\/a>
                and quickly came up with a little comic about it. You can
-               (and should) follow Naomi on twitter <a href=\"http:\/\
+               (and should) follow Naomi on twitter <a href=\"https:\/\
                /twitter.com\/ngun\" target=\"_blank\">@ngun<\/a> I'm on
-               twitter as well <a href=\"http:\/\/twitter.com\
+               twitter as well <a href=\"https:\/\/twitter.com\
                /weflewairplanes\"target=\"_blank\">@weflewairplanes<\/a>
                <\/p>\n\nAlso, if youâ€™re a Reddit user (or even if
                you're not) I submitted this there, if you could up vote
@@ -597,7 +625,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "derekg",
             "id": 7431599279,
-            "post_url": "http:\/\/derekg.org\/post\/7431599279",
+            "post_url": "https:\/\/derekg.org\/post\/7431599279",
             "type": "photo",
             "date": "2011-07-09 22:09:47 GMT",
             "timestamp": 1310249387,
@@ -613,37 +641,37 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
                      {
                         "width": 1280,
                         "height": 722,
-                        "url": "http:\/\/derekg.org\/photo\/1280\/7431599279\/1\/
+                        "url": "https:\/\/derekg.org\/photo\/1280\/7431599279\/1\/
                            tumblr_lo36wbWqqq1qanqww"
                      },
                      {
                         "width": 500,
                         "height": 282,
-                        "url": "http:\/\/30.media.tumblr.com\/
+                        "url": "https:\/\/30.media.tumblr.com\/
                            tumblr_lo36wbWqqq1qanqwwo1_500.jpg"
                      },
                      {
                         "width": 400,
                         "height": 225,
-                        "url": "http:\/\/29.media.tumblr.com\/
+                        "url": "https:\/\/29.media.tumblr.com\/
                            tumblr_lo36wbWqqq1qanqwwo1_400.jpg"
                      },
                      {
                         "width": 250,
                         "height": 141,
-                        "url": "http:\/\/26.media.tumblr.com\/
+                        "url": "https:\/\/26.media.tumblr.com\/
                            tumblr_lo36wbWqqq1qanqwwo1_250.jpg"
                      },
                      {
                         "width": 100,
                         "height": 56,
-                        "url": "http:\/\/24.media.tumblr.com\/
+                        "url": "https:\/\/24.media.tumblr.com\/
                            tumblr_lo36wbWqqq1qanqwwo1_100.jpg"
                      },
                      {
                         "width": 75,
                         "height": 75,
-                        "url": "http:\/\/30.media.tumblr.com\/
+                        "url": "https:\/\/30.media.tumblr.com\/
                            tumblr_lo36wbWqqq1qanqwwo1_75sq.jpg"
                      }
                   ]
@@ -679,7 +707,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "museumsandstuff",
             "id": 4742980381,
-            "post_url": "http:\/\/museumsandstuff.tumblr.com\/post\/4742980381",
+            "post_url": "https:\/\/museumsandstuff.tumblr.com\/post\/4742980381",
             "type": "quote",
             "date": "2011-04-19 08:52:34 GMT",
             "timestamp": 1303203154,
@@ -740,7 +768,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "travellingcameraclub",
             "id": 688472164,
-            "post_url": "http:\/\/travellingcameraclub.com\/post\/688472164",
+            "post_url": "https:\/\/travellingcameraclub.com\/post\/688472164",
             "type": "link",
             "date": "2010-06-11 23:17:08 GMT",
             "timestamp": 1276298228,
@@ -750,7 +778,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
             "note_count": 9,
             "title": "Esther Aarts Illustration | News and Blog: Faq: How do
                you make those marker doodles?",
-            "url": "http:\/\/blog.estadiezijn.nl\/post\/
+            "url": "https:\/\/blog.estadiezijn.nl\/post\/
                459075181\/faq-how-do-you-make-those-marker-doodles",
             "author": "Ester Aarts",
             "excerpt": "How I make marker doodles",
@@ -762,7 +790,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
                      {
                         "width": 500,
                         "height": 500,
-                        "url": "http:\/\/40.media.tumblr.com
+                        "url": "https:\/\/40.media.tumblr.com
                         \/1393850e5c331da2e3c9fb478a30310d
                         \/tumblr_inline_nm3lwntw8k1rplry2_500.jpg"
                      },
@@ -813,7 +841,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "david",
             "id": 5845345725,
-            "post_url": "http:\/\/www.davidslog.com\/5845345725\/if-youre-okay-with-it-destroying-tumblr",
+            "post_url": "https:\/\/www.davidslog.com\/5845345725\/if-youre-okay-with-it-destroying-tumblr",
             "type": "chat",
             "date": "2011-05-25 22:32:00 GMT",
             "timestamp": 1306362720,
@@ -822,7 +850,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
             "tags": [],
             "note_count": 114,
             "title": null,
-            "body": "David: http://staff.tumblr.com/post/5845153911
+            "body": "David: https://staff.tumblr.com/post/5845153911
                 [draft] Topherchris: are you freaking serious\r\n
                 David: If you're okay with it - I'd love to :)\r\n
                 Topherchris: i'm okay with it, if you're okay with
@@ -831,7 +859,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
                 {
                    "label": "David:",
                    "name": "David",
-                   "phrase": "http://staff.tumblr.com/post/5845153911 [draft]\r",
+                   "phrase": "https://staff.tumblr.com/post/5845153911 [draft]\r",
                 },
                 {
                    "label": "Topherchris:",
@@ -944,9 +972,9 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
             "note_count": 17,
             "source_url": "http:\/\/www.WatchMojo.com",
             "source_title": "WatchMojo.com",
-            "caption": "<p><a href=\"http:\/\/foreverneilyoung.tumblr.com\/
+            "caption": "<p><a href=\"https:\/\/foreverneilyoung.tumblr.com\/
                post\/6522738445\" target=\"_blank\">foreverneilyoung<\/a>:
-               <\/p>\n<blockquote>\n<p><a href=\"http:\/\/watchmojo.tumblr.com\/
+               <\/p>\n<blockquote>\n<p><a href=\"https:\/\/watchmojo.tumblr.com\/
                post\/6521201320\" target=\"_blank\">watchmojo<\/a>:<\/p>\n
                <blockquote>\n<p>Neil Young\u2019s live album \u201cA Treasure\
                u201d is available today. To celebrate, we take a look at the
@@ -1032,7 +1060,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "david",
             "id": 7504154594,
-            "post_url": "http://www.davidslog.com/7504154594",
+            "post_url": "https://www.davidslog.com/7504154594",
             "type": "answer",
             "date": "2011-07-11 20:24:14 GMT",
             "timestamp": 1310415854,
@@ -1040,7 +1068,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
             "reblog_key": "HNvqLd5G",
             "tags": [],
             "asking_name": "aperfectfacade",
-            "asking_url": "http://aperfectfacade.tumblr.com/",
+            "asking_url": "https://aperfectfacade.tumblr.com/",
             "question": "I thought Tumblr started in 2007, yet you
                have posts from 2006?",
             "answer": "<p>Good catch! Tumblr <strong>launched</strong> in
@@ -1568,7 +1596,7 @@ Use this method to retrieve the user's account information that matches the OAut
           {
            "name": "derekg",
            "title": "Derek Gottfrid",
-           "url": "http://derekg.org/",
+           "url": "https://derekg.org/",
            "tweet": "auto",
            "primary": true,
            "followers": 33004929,
@@ -1625,7 +1653,7 @@ Dashboard responses include the fields returned in `/posts` [responses](#post--c
          {
             "blog_name": "laughingsquid",
             "id": 6828225215,
-            "post_url": "http:\/\/links.laughingsquid.com\/post\/6828225215",
+            "post_url": "https:\/\/links.laughingsquid.com\/post\/6828225215",
             ...
          }
       ]
@@ -1707,14 +1735,14 @@ These fields are wrapped in a `blog` object:
        "blogs": [
           {
              "name": "david",
-             "url": "http:\/\/www.davidslog.com",
+             "url": "https:\/\/www.davidslog.com",
              "updated": 1308781073,
              "title": "David’s Log",
              "description": "“Mr. Karp is tall and skinny, with unflinching blue eyes and a mop of brown hair. He speaks incredibly fast and in complete paragraphs.” – NY Observer"
           },
           {
              "name": "matthew",
-             "url": "http:\/\/matthew.tumblr.com",
+             "url": "https:\/\/matthew.tumblr.com",
              "updated": 1306436424,
              "title": "Matt Hackett",
              "description": " I obsess over the engineering and dissemination of technology for creative people.
