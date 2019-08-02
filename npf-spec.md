@@ -135,8 +135,8 @@ Many content blocks and their components include **media objects** which link di
 
 ```JSON
 {
-    "type": "image/jpg",
     "url": "https://69.media.tumblr.com/path/to/image.jpg",
+    "type": "image/jpg",
     "width": 540,
     "height": 405
 }
@@ -146,8 +146,8 @@ Media objects are used for image blocks, all kinds of posters (GIF, video, etc),
 
 Property | Type | Default | Required | Description
 -------- | ---- | ------- | -------- | -----------
-type | string | _N/A_ | yes | The MIME type of the media asset, or best approximation
 url | string | _N/A_ | yes | The canonical URL of the media asset
+type | string | _N/A_ | no | The MIME type of the media asset, or a best approximation will be made based on the given URL
 width | integer | 540 | no | The width of the media asset, if that makes sense (for images and videos, but not for audio)
 height | integer | 405 | no | The height of the media asset, if that makes sense (for images and videos, but not for audio)
 original_dimensions_missing | boolean | _N/A_ | no | For display purposes, this indicates whether the dimensions are defaults
@@ -508,6 +508,8 @@ hex | string | yes | The color to use, in standard hex format, with leading #.
 
 For image blocks, the only required field is a `media` array, which contains objects per-image-size. Each image media object contains fields for `type`, `url`, `width`, and `height`; see the [Media Objects](#media-objects) section for more details.
 
+We encourage you to include a string in the optional `alt_text` field that describes the image, for use by accessibility tools such as screen readers.
+
 ```JSON
 {
     "content": [
@@ -532,7 +534,8 @@ For image blocks, the only required field is a `media` array, which contains obj
                     "width": 250,
                     "height": 150
                 }
-            ]
+            ],
+            "alt_text": "Sonic the Hedgehog and friends"
         }
     ]
 }
@@ -591,6 +594,7 @@ colors | object | no | Colors used in the image.
 feedback_token | string | no | A feedback token to use when this image block is a GIF Search result.
 poster | [Media Object](#media-objects) | no | For GIFs, this is a single-frame "poster"; see the [GIF Posters](#gif-posters) section.
 attribution | [Attribution Object](#attributions) | no | See [the Attributions section](#attributions) for details about these objects.
+alt_text | string | no | Text used to describe the image, for screen readers. 200 character maximum.
 
 #### GIF Posters
 
@@ -833,13 +837,13 @@ A native video:
             "filmstrip": [
                 {
                     "type": "image/jpeg",
-                    "url": "https://78.media.tumblr.com/previews/tumblr_nshp8oVOnV1rg0s9xo1_filmstrip_frame1.jpg",
+                    "url": "https://66.media.tumblr.com/previews/tumblr_nshp8oVOnV1rg0s9xo1_filmstrip_frame1.jpg",
                     "width": 200,
                     "height": 125
                 },
                 {
                     "type": "image/jpeg",
-                    "url": "https://78.media.tumblr.com/previews/tumblr_nshp8oVOnV1rg0s9xo1_filmstrip_frame2.jpg",
+                    "url": "https://66.media.tumblr.com/previews/tumblr_nshp8oVOnV1rg0s9xo1_filmstrip_frame2.jpg",
                     "width": 200,
                     "height": 125
                 }
@@ -889,6 +893,14 @@ Property | Type | Required | Description
 -------- | ---- | -------- | -----------
 type | string | yes | The type of layout block; current types should be one of `"rows"`, `"ask"`, or `"condensed"`.
 
+### Layout Default Behavior Recommendations
+
+While it's entirely up to the client to determine how they want to render content blocks based on the given data, we recommend the following approach.
+
+- If no layouts are given in the `layout` array, the content blocks should be rendered in a vertical stack as if there is a `rows` layout with each block in a row in sequential order, i.e. `[[0], [1], [2], [3], ...]`. This should be the starting assumption for rendering content blocks.
+- There should only ever be one instance of each type of layout in the `layout` array. For example, there should never be two `rows` layouts, or two `ask` layouts, but there can be one of each. Having more than one layout of the same type is not supported in the official Tumblr clients and the resulting content's appearance may be unexpected.
+- If a `rows` layout is present at content creation, it should contain references to **all content block indices**, even if only a subset of the content blocks are being arranged in a grid. For example, if you are placing two images in a single row and one text block in its own row above them, the `rows` layout should contain references to _all three blocks_, even if a content block is by itself in a row: `[[0], [1, 2]]` instead of only `[[1, 2]]`.
+
 ### Layout Block Type: Basic Rows
 
 The most basic type of layout block is `"rows"`, which allows you to organize content blocks in rows, with variable elements per row.
@@ -936,8 +948,6 @@ The most basic type of layout block is `"rows"`, which allows you to organize co
 ```
 
 Each `rows` layout object requires an array of arrays under the `rows` key, each one representing a different row to be rendered with the given content blocks.
-
-**Important note:** If a `rows` layout is present, any content block that is _not placed in a row_ should not be rendered at all by the client. Conversely, if a `rows` layout is _not given at all_ by the API when consuming a Post, the client should render as the default vertical stack of single-block rows.
 
 In the above example, the two `image` type content blocks are laid out into one row with each image taking up half of the row's total width. The width of each element within the row is determined by however many blocks are in the row. The elements in each `rows` array signifies which content block is placed in the given row position, provided as the index within the `content` array.
 
@@ -1081,24 +1091,43 @@ When using the `display` type of `rows` layout, a `carousel` display mode signif
 
 In the above example, the second `display` row will default to `weighted` and will appear with each of the two items taking up 50% of the width. However, the fourth row should display as a `carousel`, as that `mode` has been specified.
 
+**Note:** Currently only certain Tumblr content creators can create layouts with the `carousel` display mode, but all Tumblr consumers can see it. The API will return a `403 Forbidden` response for ineligible consumers trying to create a carousel.
+
 ### Layout Block Type: Condensed
 
-Another type of layout is the `condensed` layout. The `condensed` layout describes how the content should be truncated given a Post with a legacy "read more" signifier. It consists of a `blocks` integer array that specifies the block indices that should be displayed as the truncated view of the Post.
+Another type of layout is the `condensed` layout. The `condensed` layout describes how the content should be truncated given a Post with a legacy "read more" signifier. It contains a `truncate_after` property that specifies the last block that should be displayed in the truncated view of the post.
 
-If any blocks exist _outside_ of the `condensed` layout's blocks array, they should be ignored when displaying the truncated view of the Post. The client should take defensive measures to limit any situation where the content of a `condensed` layout conflicts with other layout types (for example, if the `condensed` layout contains some but not all blocks in a `row` layout).
+If any blocks exist _after_ the `condensed` layout's `truncate_after` index, they should be ignored when displaying the truncated view of the Post.
 
 ```json
 "layout": [
     {
         "type": "condensed",
+        "truncate_after": 1
+    }
+]
+```
+
+The `truncate_after` property will replace the `blocks` property in future versions of the Tumblr API. The `blocks` property consists of a `blocks` integer array that specifies the block indices that should be displayed as the truncated view of the Post.
+
+During the transition period, API responses will contain both the `truncate_after` and `blocks` properties, as shown below:
+
+```json
+"layout": [
+    {
+        "type": "condensed",
+        "truncate_after": 3,
         "blocks": [0, 1, 2, 3]
     }
 ]
 ```
 
+Posts may be created or updated using either the `truncate_after` or `blocks` fields, but use of `truncate_after` is recommended.
+
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-blocks | array | yes | This is an array of block indices that are a part of the truncated version of the Post.
+truncate_after | int | maybe | The last block to display before the Read More signifier. Required if `blocks` is not supplied.
+blocks | array | maybe | This is an array of block indices that are a part of the truncated version of the Post. Required if `truncate_after` is not supplied. Must be sequential, not empty, and begin with 0.
 
 Note that there are certain contexts where the `condensed` layout should not be displayed (namely a permalink revealing the full Post), but the server will return this `condensed` layout for all contexts; this means it is up to the client to determine whether to actually use it. It is expected that the client should use it in every context (a dashboard, via search, etc) except viewing the blog or Post directly.
 
