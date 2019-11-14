@@ -151,8 +151,20 @@ type | string | _N/A_ | no | The MIME type of the media asset, or a best approxi
 width | integer | 540 | no | The width of the media asset, if that makes sense (for images and videos, but not for audio)
 height | integer | 405 | no | The height of the media asset, if that makes sense (for images and videos, but not for audio)
 original_dimensions_missing | boolean | _N/A_ | no | For display purposes, this indicates whether the dimensions are defaults
+cropped | boolean | _N/A_ | no | This indicates whether this media object is a cropped version of the original media
+has_original_dimensions | bool | _N/A_ | no | This indicates whether this media object has the same dimensions as the original media
 
 If the original dimensions of the media are not known, a boolean flag `original_dimensions_missing` with a value of `true` will also be included in the media object. In this scenario, `width` and `height` will be assigned default dimensional values of 540 and 405 respectively. Please note that this field should only be available when _consuming_ an NPF Post, it is not allowed during Post creation.
+
+### Embed Iframe Objects
+
+Embed iframe objects are used for constructing video iframes.
+
+Property | Type | Default | Required | Description
+-------- | ---- | ------- | -------- | -----------
+url | string | _N/A_ | yes | A URL used for constructing and embeddable video iframe
+width | integer | 540 | yes | The width of the video iframe
+height | integer | 405 | yes | The height of the video iframe
 
 ### Content Block Type: Text
 
@@ -240,6 +252,7 @@ The following subtypes are supported for text blocks:
 * `heading2`
 * `quirky`
 * `quote`
+* `indented`
 * `chat`
 * `ordered-list-item`
 * `unordered-list-item`
@@ -632,7 +645,7 @@ In the case of GIF search results and individual images with a content source, t
 
 In addition to the inline link format, there is a standalone Link content block, which contains metadata about the link.
 
-All `link` type blocks must have at least a `url` field. `title`, `description`, `author`, `site_name`, and `poster` are all optional, depending on their availability. The `title`, `description`, `author`, and `site_name` fields are limited to 140 characters when fetching a link's OpenGraph data server-side. The `site_name` field will either have the site name pulled from OpenGraph data or will have the host name as depicted in the example response below. A `display_url` field is given for display only. The `poster` field is expected to be an array of image MediaObjects with alternate sizes.
+All `link` type blocks must have at least a `url` field. `title`, `description`, `author`, `site_name`, and `poster` are all optional, depending on their availability. If only a `url` is given with no other fields, we will attempt to fetch that link's OpenGraph data during post creation, which may populate the other fields. The `title`, `description`, `author`, and `site_name` fields are limited to 140 characters when fetching a link's OpenGraph data server-side. The `site_name` field will either have the site name pulled from OpenGraph data or will have the host name as depicted in the example response below. A `display_url` field is given for display only. The `poster` field is expected to be an array of image MediaObjects with alternate sizes.
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
@@ -791,6 +804,7 @@ url | string | maybe | The URL to use for the video block, if no `media` is pres
 media | [Media Object](#media-objects) | maybe | The [Media Object](#media-objects) to use for the video block, if no `url` is present.
 provider | string | no | The provider of the video, whether it's `tumblr` for native video or a trusted third party.
 embed_html | string | no | HTML code that could be used to embed this video into a webpage.
+embed_iframe | [Embed Iframe Object](#embed-iframe-objects) | no | An embed iframe object used for constructing video iframes.
 embed_url | string | no | A URL to the embeddable content to use as an iframe.
 poster | [Media Object](#media-objects) | no | An image media object to use as a "poster" for the video, usually a single frame.
 metadata | object | no | Optional provider-specific metadata about the video.
@@ -809,7 +823,9 @@ Based on the provider, the waterfall the client should attempt to follow looks l
 
 1. If there is a `media` object present, simply use the client's native player.
 1. If there is a client-side SDK for the given provider, use the given `metadata` object with the client-side SDK.
-1. If there is an `embed_html` and/or `embed_url` field present, render `embed_html` or show `embed_url` in an iframe.
+1. If there is an `embed_html` render it.
+1. If there is an `embed_iframe` use it to construct an iframe.
+1. If there is an `embed_url` use it to construct an iframe.
 1. If all else fails, just show a link to `url`.
 
 A native video:
