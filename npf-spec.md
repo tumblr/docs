@@ -147,12 +147,12 @@ Media objects are used for image blocks, all kinds of posters (GIF, video, etc),
 Property | Type | Default | Required | Description
 -------- | ---- | ------- | -------- | -----------
 url | string | _N/A_ | yes | The canonical URL of the media asset
-type | string | _N/A_ | no | The MIME type of the media asset, or a best approximation will be made based on the given URL
+type | string | see description | no | The MIME type of the media asset, or a best approximation will be made based on the given URL
 width | integer | 540 | no | The width of the media asset, if that makes sense (for images and videos, but not for audio)
 height | integer | 405 | no | The height of the media asset, if that makes sense (for images and videos, but not for audio)
-original_dimensions_missing | boolean | _N/A_ | no | For display purposes, this indicates whether the dimensions are defaults
-cropped | boolean | _N/A_ | no | This indicates whether this media object is a cropped version of the original media
-has_original_dimensions | bool | _N/A_ | no | This indicates whether this media object has the same dimensions as the original media
+original_dimensions_missing | boolean | `false` | no | For display purposes, this indicates whether the dimensions are defaults
+cropped | boolean | `false` | no | This indicates whether this media object is a cropped version of the original media
+has_original_dimensions | bool | `false` | no | This indicates whether this media object has the same dimensions as the original media
 
 If the original dimensions of the media are not known, a boolean flag `original_dimensions_missing` with a value of `true` will also be included in the media object. In this scenario, `width` and `height` will be assigned default dimensional values of 540 and 405 respectively. Please note that this field should only be available when _consuming_ an NPF Post, it is not allowed during Post creation.
 
