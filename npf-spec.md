@@ -248,16 +248,16 @@ Text blocks can also have a `subtype` field that specifies a semantic meaning to
 
 The following subtypes are supported for text blocks:
 
-* `heading1`
-* `heading2`
-* `quirky`
-* `quote`
-* `indented`
-* `chat`
-* `ordered-list-item`
-* `unordered-list-item`
+* `heading1` - Intended for Post headings.
+* `heading2` - Intended for section subheadings.
+* `quirky` - Tumblr Official clients display this with a large cursive font.
+* `quote` - Intended for short quotations, official Tumblr clients display this with a large serif font.
+* `indented` - Intended for longer quotations or photo captions, official Tumblr clients indent this text block.
+* `chat` - Intended to mimic the behavior of the Chat Post type, official Tumblr clients display this with a monospace font.
+* `ordered-list-item` - Intended to be an ordered list item prefixed by a number, see next section.
+* `unordered-list-item` - Intended to be an unordered list item prefixed with a bullet, see next section.
 
-A Post with two content blocks, one being a regular paragraph and the next being a "quote" block:
+An example Post with two content blocks, one being a regular paragraph and the next being a "quote" block:
 
 ```JSON
 {

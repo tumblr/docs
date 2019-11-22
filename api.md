@@ -138,13 +138,20 @@ These rate limits include:
 - 1,000 API calls per hour, per consumer key.
 - 5,000 API calls per day, per consumer key.
 - 250 new posts (including reblogs) per day, per user.
-- 300 queued posts per day, per user.
 - 150 images uploaded per day, per user.
 - 200 follows per day, per user.
 - 1,000 likes per day, per user.
 - 10 new blogs per day, per user.
 - 10 videos uploaded per day, per user.
 - 5 minutes of total video uploaded per day, per user.
+
+Note that these rate limits are based on the Tumblr servers' internal clocks and that the daily limits are per calendar day.
+
+There are also overall limits to a few specific actions, including:
+
+- A blog can only follow 5,000 other blogs at a time.
+- A blog can only have 300 queued posts at a time.
+- You can only filter up to 1,000 tags at a time.
 
 ### Reporting Issues
 
