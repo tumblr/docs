@@ -1242,22 +1242,18 @@ post | object | no | An object with information about the Post in the reblog tra
 blog | object | no | An object with information about the Post's blog in the reblog trail; contains at least a `uuid` field. This won't be available for ["broken" trail items](#broken-trail-items).
 content | array | yes | The content of the Post in the trail.
 layout | array | yes | The layout to use for the content of the Post in the trail.
-broken_blog | object | no | An object with information about the blog from broken trail item; see ["broken" trail items](#broken-trail-items).
+broken_blog_name | string | no | The name of the blog from a broken trail item; see ["broken" trail items](#broken-trail-items).
 
 ### "Broken" Trail Items
 
 When converting an old legacy reblog trail to NPF, there are sometimes "broken" parts of the trail, meaning that the original Post cannot be found (i.e. deleted), or the blog itself is broken in some way (i.e. deleted, suspended, etc).
 
-In these cases, the `trail` array will contain a "broken" trail item which has _no Post ID_, but a `broken_blog` object (since that's all we have), and the content and layout of the trail item.
+In these cases, the `trail` array will contain a "broken" trail item which has _no Post ID_, but a `broken_blog_name` string (since that's all we have), and the content and layout of the trail item.
 
 ```JSON
 "trail": [
     {
         "broken_blog_name": "old-broken-blog",
-        "broken_blog": {
-            "name": "old-broken-blog",
-            "avatar": { "/* Standard Blog Avatar Response Object Format */": "/* returns placeholder avatar images like https://assets.tumblr.com/images/default_avatar/pyramid_closed_64.png */" },
-        },
         "content": [
             {
                 "type": "text",
@@ -1268,10 +1264,6 @@ In these cases, the `trail` array will contain a "broken" trail item which has _
     },
     {
         "broken_blog_name": "another-broken-blog",
-        "broken_blog": {
-            "name": "another-broken-blog",
-            "avatar": { "/* Standard Blog Avatar Response Object Format */": "/* returns placeholder avatar images like https://assets.tumblr.com/images/default_avatar/octahedron_open_64.png */" },
-        },
         "content": [
             {
                 "type": "text",
