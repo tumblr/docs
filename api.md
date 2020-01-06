@@ -298,17 +298,40 @@ This method returns general information about the blog, such as the title, numbe
 
 #### Response
 
-| Response Field | Type | Description | Notes |
-| -------------- | ---- | ----------- | ----- |
-| **title** | String | The display title of the blog | Compare name |
-| **posts** | Number | The total number of posts to this blog | |
-| **name** | String | The short blog name that appears before tumblr.com in a standard blog hostname | Compare title |
-| **updated** | Number | The time of the most recent post, in seconds since the epoch |  |
-| **description** | String | You guessed it! The blog's description |  |
-| **ask** | Boolean | Indicates whether the blog allows questions |  |
-| **ask_anon** | Boolean | Indicates whether the blog allows anonymous questions; returned only if ask is true |  |
-| **likes** | Number | Number of likes for this user | Returned only if this is the user's primary blog and sharing of likes is enabled |  |
-| **is_blocked_from_primary** | Boolean | Indicates whether this blog has been blocked by the calling user's primary blog; returned only if there is an authenticated user making this call |  |
+| Response Field | Type | Description |
+| -------------- | ---- | ----------- |
+| **title** | String | The display title of the blog |
+| **posts** | Number | The total number of posts to this blog |
+| **name** | String | The short blog name that appears before tumblr.com in a standard blog hostname |
+| **updated** | Number | The time of the most recent post, in seconds since the epoch |
+| **description** | String | You guessed it! The blog's description |
+| **ask** | Boolean | Indicates whether the blog allows questions |
+| **ask_anon** | Boolean | Indicates whether the blog allows anonymous questions; returned only if ask is true |
+| **likes** | Number | Number of likes for this user, returned only if this is the user's primary blog and sharing of likes is enabled |
+| **is_blocked_from_primary** | Boolean | Indicates whether this blog has been blocked by the calling user's primary blog; returned only if there is an authenticated user making this call |
+| **avatar** | Array | An array of avatar objects, each a different size, which should each have a width, height, and URL. |
+| **theme** | Object | The blog's general theme options, which may not be useful if the blog uses a custom theme. See next table. |
+
+Specific fields inside of the `theme` object and what they mean:
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `avatar_shape` | String | "circle" or "square", this is the shape of the mask over the user's avatar. |
+| `background_color` | String | The intended hex color used for the blog's background color. |
+| `body_font` | String | The font that the blog has selected as their "body" font. |
+| `header_bounds` | Mixed | If the blog's header should be cropped, this is a comma-separated list of top/right/bottom/left coordinates to use. |
+| `header_image` | String | The URL of the blog's original, full header image. Note that this may be a default Tumblr header image. |
+| `header_image_focused` | String | If the blog cropped/repositioned their header image, this will be that version, which should be preferred over the original. |
+| `header_image_scaled` | String | If the blog _only_ scaled their header image, this will be that scaled version. Note that this may be a default Tumblr header image in the case that they scaled _and_ repositioned it, in which case, use the `_focused` version. |
+| `header_stretch` | Boolean | Whether or not the blog's header is meant to be stretched to aspect-fill any given space where it's used. |
+| `link_color` | String | The intended hex color of any links in the blog's description. |
+| `show_avatar` | Boolean | Whether or not the blog's avatar should be displayed, even if it's given in the API payload. |
+| `show_description` | Boolean | Whether or not the blog's description should be displayed, even if it's given in the API payload. |
+| `show_header_image` | Boolean | Whether or not the blog's header image should be displayed, even if it's given in the API payload. |
+| `show_title` | Boolean | Whether or not the blog's title should be displayed, even if it's given in the API payload. |
+| `title_color` | String | The intended hex color of the blog's title. |
+| `title_font` | String | The intended font to use when displaying the blog's title. |
+| `title_font_weight` | String | The intended font weight to use when displaying the blog's title. |
 
 **Example**
 
