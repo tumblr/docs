@@ -404,7 +404,7 @@ For example, suppose the following text with two overlapping ranges:
         },
         {
             "start": 9,
-            "end": 20,
+            "end": 34,
             "type": "italic"
         }
     ]
