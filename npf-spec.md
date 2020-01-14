@@ -919,6 +919,8 @@ While it's entirely up to the client to determine how they want to render conten
 
 ### Layout Block Type: Basic Rows
 
+> Basic Rows is deprecated in favor of [Display Modes](#layout-block-type-rows-with-display-modes). The Tumblr API will start returning all posts with display mode on February 3rd, 2020. Also the Tumblr API will stop accepting layouts with basic rows format when creating or updating posts.
+
 The most basic type of layout block is `"rows"`, which allows you to organize content blocks in rows, with variable elements per row.
 
 ```json
