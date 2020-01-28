@@ -6,6 +6,7 @@ This repository contains public documentation for Tumblr's API.
 
 - [Tumblr API](api.md) - The official documentation for the Tumblr API.
 - [Tumblr Neue Post Format (NPF) Specification](npf-spec.md) - The official documentation for the Tumblr Neue Post Format.
+- [Tumblr Web Platform](web-platform.md) - The official documentation for the new Tumblr Web Platform.
 
 ## Contributing
 
