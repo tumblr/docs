@@ -298,6 +298,8 @@ This method returns general information about the blog, such as the title, numbe
 
 #### Response
 
+*Note: Field ordering below may differ from actual response.*
+
 | Response Field | Type | Description |
 | -------------- | ---- | ----------- |
 | **title** | String | The display title of the blog |
@@ -311,6 +313,7 @@ This method returns general information about the blog, such as the title, numbe
 | **is_blocked_from_primary** | Boolean | Indicates whether this blog has been blocked by the calling user's primary blog; returned only if there is an authenticated user making this call |
 | **avatar** | Array | An array of avatar objects, each a different size, which should each have a width, height, and URL. |
 | **theme** | Object | The blog's general theme options, which may not be useful if the blog uses a custom theme. See next table. |
+| **timezone_offset** | String | The blog's configured timezone as a GMT offset such as "GMT+0800". Only viewable by blog member. *Partial response field ONLY.*
 
 Specific fields inside of the `theme` object and what they mean:
 
