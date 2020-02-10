@@ -26,8 +26,7 @@
     - [Content Block Type: Video](#content-block-type-video)
     - [Future Content Block Types](#future-content-block-types)
 - [Layout Blocks](#layout-blocks)
-    - [Layout Block Type: Basic Rows](#layout-block-type-basic-rows)
-    - [Layout Block Type: Rows with Display Modes](#layout-block-type-rows-with-display-modes)
+    - [Layout Block Type: Rows](#layout-block-type-rows)
         - [Layout Block Display Mode: Carousel](#layout-block-display-mode-carousel)
     - [Layout Block Type: Condensed](#layout-block-type-condensed)
     - [Layout Block Type: Ask](#layout-block-type-ask)
@@ -917,9 +916,7 @@ While it's entirely up to the client to determine how they want to render conten
 - There should only ever be one instance of each type of layout in the `layout` array. For example, there should never be two `rows` layouts, or two `ask` layouts, but there can be one of each. Having more than one layout of the same type is not supported in the official Tumblr clients and the resulting content's appearance may be unexpected.
 - If a `rows` layout is present at content creation, it should contain references to **all content block indices**, even if only a subset of the content blocks are being arranged in a grid. For example, if you are placing two images in a single row and one text block in its own row above them, the `rows` layout should contain references to _all three blocks_, even if a content block is by itself in a row: `[[0], [1, 2]]` instead of only `[[1, 2]]`.
 
-### Layout Block Type: Basic Rows
-
-> Basic Rows is deprecated in favor of [Display Modes](#layout-block-type-rows-with-display-modes). The Tumblr API will start returning all posts with display mode on February 3rd, 2020. Also the Tumblr API will stop accepting layouts with basic rows format when creating or updating posts.
+### Layout Block Type: Rows
 
 The most basic type of layout block is `"rows"`, which allows you to organize content blocks in rows, with variable elements per row.
 
@@ -956,23 +953,23 @@ The most basic type of layout block is `"rows"`, which allows you to organize co
     "layout": [
         {
             "type": "rows",
-            "rows": [
-                [0, 1],
-                [2]
+            "display": [
+                {"blocks": [0, 1]},
+                {"blocks": [2]}
             ]
         }
     ]
 }
 ```
 
-Each `rows` layout object requires an array of arrays under the `rows` key, each one representing a different row to be rendered with the given content blocks.
-
-In the above example, the two `image` type content blocks are laid out into one row with each image taking up half of the row's total width. The width of each element within the row is determined by however many blocks are in the row. The elements in each `rows` array signifies which content block is placed in the given row position, provided as the index within the `content` array.
+Each `rows` layout object requires a display object under the `display` key. This display object is an array of dictionaries containing both the array of `blocks` to be used in the row as well as an optional `mode` dictionary with a specified `type`. The default display mode is `weighted`. The display mode type **does not** need to be specified when creating a Post with NPF content. each one representing a different row to be rendered with the given content blocks.
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-rows | array | maybe | This is an array of the rows and block indices per row, for basic row layouts.
-display | array | maybe | This is an array of display objects per row, see [the next section](#layout-block-type-rows-with-display-modes).
+blocks | array | yes | This is an array of block indices to use in this row.
+mode | object | no | To specify a display mode other than `weighted`, add an object here with a `type`.
+
+In the above example, the two `image` type content blocks are laid out into one row with each image taking up half of the row's total width. The width of each element within the row is determined by however many blocks are in the row. The elements in each `rows` array signifies which content block is placed in the given row position, provided as the index within the `content` array.
 
 Another example, with three paragraphs of text and two photosets between them (media info omitted for easier reading):
 
@@ -1015,12 +1012,12 @@ Another example, with three paragraphs of text and two photosets between them (m
     "layout": [
         {
             "type": "rows",
-            "rows": [
-                [0],
-                [1, 2],
-                [3],
-                [4, 5, 6],
-                [7]
+            "display": [
+                {"blocks": [0]},
+                {"blocks": [1, 2]},
+                {"blocks": [3]},
+                {"blocks": [4, 5, 6]},
+                {"blocks": [7]}
             ]
         }
     ]
@@ -1029,7 +1026,7 @@ Another example, with three paragraphs of text and two photosets between them (m
 
 In this example you can see that there are five rows, and the client should use the row contents to determine the display width of the content inside. The second row has blocks `1` and `2`, each taking up 50% of the width since there are two blocks in the row, and the fourth row of three blocks, at indexes `4`, `5`, and `6`. Since there are three blocks in that row, each block width will be ~33% of the total width.
 
-Note that the order of the blocks in the `row` arrays are important: the content blocks will be ordered in their row based on their position in the rows arrays. However, blocks _can_ be out-of-order in the `row` array versus in the `content` array:
+Note that the order of the blocks in the `blocks` arrays are important: the content blocks will be ordered in their row based on their position in the rows arrays. However, blocks _can_ be out-of-order in the `blocks` array versus in the `content` array:
 
 ```json
 {
@@ -1050,24 +1047,17 @@ Note that the order of the blocks in the `row` arrays are important: the content
     "layout": [
         {
             "type": "rows",
-            "rows": [
-                [2, 0, 1]
+            "display": [
+                {"blocks": [2, 0, 1]}
             ]
         }
     ]
 }
 ```
 
-### Layout Block Type: Rows with Display Modes
+#### Layout Block Display Mode: Carousel
 
-Alternatively, layout objects with the type `"rows"` can have a `display` array instead of the `rows` array. To facilitate richer `rows`-type layout information, `display` is an array of dictionaries containing both the array of `blocks` to be used in the row as well as an optional `mode` dictionary with a specified `type`. The default display mode is `weighted`. The display mode type **does not** need to be specified when creating a Post with NPF content.
-
-Property | Type | Required | Description
--------- | ---- | -------- | -----------
-blocks | array | yes | This is an array of block indices to use in this row.
-mode | object | no | To specify a display mode other than `weighted`, add an object here with a `type`.
-
-Therefore, the following `display` version...
+A `carousel` display mode signifies that the client should use a horizontally paging view where each block occupies 100% of the width of the screen (a "page") and scrolling snaps to the center of a "page".
 
 ```json
 "layout": [
@@ -1083,29 +1073,6 @@ Therefore, the following `display` version...
     }
 ]
 ```
-
-... is compatible with the below "basic" rows version...
-
-```json
-"layout": [
-    {
-        "type": "rows",
-        "rows": [
-            [0],
-            [1, 2],
-            [3],
-            [4, 5, 6],
-            [7]
-        ]
-    }
-]
-```
-
-... but doesn't include the display `mode` information about the second to last row.
-
-#### Layout Block Display Mode: Carousel
-
-When using the `display` type of `rows` layout, a `carousel` display mode signifies that the client should use a horizontally paging view where each block occupies 100% of the width of the screen (a "page") and scrolling snaps to the center of a "page".
 
 In the above example, the second `display` row will default to `weighted` and will appear with each of the two items taking up 50% of the width. However, the fourth row should display as a `carousel`, as that `mode` has been specified.
 
