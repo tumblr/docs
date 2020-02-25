@@ -324,6 +324,7 @@ Specific fields inside of the `theme` object and what they mean:
 | `body_font` | String | The font that the blog has selected as their "body" font. |
 | `header_bounds` | Mixed | If the blog's header should be cropped, this is a comma-separated list of top/right/bottom/left coordinates to use. |
 | `header_image` | String | The URL of the blog's original, full header image. Note that this may be a default Tumblr header image. |
+| `header_image_poster` | String | The URL of a single-frame "poster" version of the blog's header image, if it's an animated image. Note that this may be an empty string if no poster could be made or is not needed. |
 | `header_image_focused` | String | If the blog cropped/repositioned their header image, this will be that version, which should be preferred over the original. |
 | `header_image_scaled` | String | If the blog _only_ scaled their header image, this will be that scaled version. Note that this may be a default Tumblr header image in the case that they scaled _and_ repositioned it, in which case, use the `_focused` version. |
 | `header_stretch` | Boolean | Whether or not the blog's header is meant to be stretched to aspect-fill any given space where it's used. |
