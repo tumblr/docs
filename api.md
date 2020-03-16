@@ -12,6 +12,7 @@ If you're looking for documentation for the old API, you can find it [here](http
 - [Console](#console)
 - [API Overview](#api-overview)
     - [URI Structure](#uri-structure)
+    - [Post Identifiers](#post-identifiers)
     - [Blog Identifiers](#blog-identifiers)
     - [Response Format](#response-format)
     - [Rate Limits](#rate-limits)
@@ -76,6 +77,10 @@ All Tumblr API requests start with `https://api.tumblr.com`.
 The next segment of the URI path depends on the type of request you want to make. For example, getting blog data or to make a post on a blog uses the `/v2/blog/{blog-identifier}/...` endpoint, so the full URL would be `https://api.tumblr.com/v2/blog/{blog-identifier}/...`
 
 See the different Methods sections below for complete details on the available routes.
+
+### Post Identifiers
+
+Please note that Tumblr's Post IDs are 64-bit integers. Some languages, like Javascript, don't handle 64-bit numbers very well. With that in mind, there is also an `id_string` field available so you can handle these safely.
 
 ### Blog Identifiers
 
@@ -313,6 +318,7 @@ This method returns general information about the blog, such as the title, numbe
 | **is_blocked_from_primary** | Boolean | Indicates whether this blog has been blocked by the calling user's primary blog; returned only if there is an authenticated user making this call |
 | **avatar** | Array | An array of avatar objects, each a different size, which should each have a width, height, and URL. |
 | **theme** | Object | The blog's general theme options, which may not be useful if the blog uses a custom theme. See next table. |
+| **timezone** | String | The blog's configured timezone, such as "US/Eastern". Only viewable by blog member. *Partial response field ONLY.*
 | **timezone_offset** | String | The blog's configured timezone as a GMT offset such as "GMT+0800". Only viewable by blog member. *Partial response field ONLY.*
 
 Specific fields inside of the `theme` object and what they mean:
@@ -324,8 +330,8 @@ Specific fields inside of the `theme` object and what they mean:
 | `body_font` | String | The font that the blog has selected as their "body" font. |
 | `header_bounds` | Mixed | If the blog's header should be cropped, this is a comma-separated list of top/right/bottom/left coordinates to use. |
 | `header_image` | String | The URL of the blog's original, full header image. Note that this may be a default Tumblr header image. |
-| `header_image_poster` | String | The URL of a single-frame "poster" version of the blog's header image, if it's an animated image. Note that this may be an empty string if no poster could be made or is not needed. |
 | `header_image_focused` | String | If the blog cropped/repositioned their header image, this will be that version, which should be preferred over the original. |
+| `header_image_poster` | String | The URL of a single-frame "poster" version of the blog's header image, if it's an animated image. Note that this may be an empty string if no poster could be made or is not needed. |
 | `header_image_scaled` | String | If the blog _only_ scaled their header image, this will be that scaled version. Note that this may be a default Tumblr header image in the case that they scaled _and_ repositioned it, in which case, use the `_focused` version. |
 | `header_stretch` | Boolean | Whether or not the blog's header is meant to be stretched to aspect-fill any given space where it's used. |
 | `link_color` | String | The intended hex color of any links in the blog's description. |
@@ -550,6 +556,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
 | -------------- | ---- | ----------- | ----- |
 | **blog_name** | String | The short name used to uniquely identify a blog | |
 | **id** | Number | The post's unique ID | |
+| **id_string** | String | The post's unique ID as a String | For clients that don't support 64-bit integers |
 | **post_url** | String | The location of the post | |
 | **type** | String | The type of post | See the `type` request parameter |
 | **timestamp** | Number | The time of the post, in seconds since the epoch | |
@@ -588,6 +595,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "citriccomics",
             "id": 3507845453,
+            "id_string": "3507845453",
             "post_url": "https:\/\/citriccomics.tumblr.com\/post\/3507845453",
             "type": "text",
             "date": "2011-02-25 20:27:00 GMT",
@@ -659,6 +667,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "derekg",
             "id": 7431599279,
+            "id_string": "7431599279",
             "post_url": "https:\/\/derekg.org\/post\/7431599279",
             "type": "photo",
             "date": "2011-07-09 22:09:47 GMT",
@@ -741,6 +750,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "museumsandstuff",
             "id": 4742980381,
+            "id_string": "4742980381",
             "post_url": "https:\/\/museumsandstuff.tumblr.com\/post\/4742980381",
             "type": "quote",
             "date": "2011-04-19 08:52:34 GMT",
@@ -802,6 +812,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "travellingcameraclub",
             "id": 688472164,
+            "id_string": "688472164",
             "post_url": "https:\/\/travellingcameraclub.com\/post\/688472164",
             "type": "link",
             "date": "2010-06-11 23:17:08 GMT",
@@ -875,6 +886,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "david",
             "id": 5845345725,
+            "id_string": "5845345725",
             "post_url": "https:\/\/www.davidslog.com\/5845345725\/if-youre-okay-with-it-destroying-tumblr",
             "type": "chat",
             "date": "2011-05-25 22:32:00 GMT",
@@ -950,6 +962,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "derekg",
             "id": 5578378101,
+            "id_string": "5578378101",
             "post_url": "http:\/\/derekg.org\/post\/5578378101/otis-redding",
             "type": "audio",
             "date": "2011-05-17 16:21:05 GMT",
@@ -996,6 +1009,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "john",
             "id": 6522991678,
+            "id_string": "6522991678",
             "post_url": "http:\/\/john.io\/post\/6522991678",
             "type": "video",
             "date": "2011-06-14 15:51:21 GMT",
@@ -1094,6 +1108,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
          {
             "blog_name": "david",
             "id": 7504154594,
+            "id_string": "7504154594",
             "post_url": "https://www.davidslog.com/7504154594",
             "type": "answer",
             "date": "2011-07-11 20:24:14 GMT",
@@ -1180,6 +1195,7 @@ The specification for what objects you can find in these fields is [documented h
 | Response Field | Type | Description |
 | -------------- | ---- | ----------- |
 | **id** | Number | The ID of the submitted post |
+| **id_string** | String | The ID of the submitted post, in String format for clients that do not support 64-bit integers |
 | **post_url** | String | The location of the post |
 | **slug** | String | Short text summary to the end of the post URL |
 | **type** | String | The type of post. One of the following: text, photo, quote, link, video |
@@ -1687,6 +1703,7 @@ Dashboard responses include the fields returned in `/posts` [responses](#post--c
          {
             "blog_name": "laughingsquid",
             "id": 6828225215,
+            "id_string": "6828225215",
             "post_url": "https:\/\/links.laughingsquid.com\/post\/6828225215",
             ...
          }
