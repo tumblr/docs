@@ -785,7 +785,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
 | **title** | String | The title of the page the link points to |
 | **description** | String | A user-supplied description |
 | **url** | String | The link! |
-| **author** | String | The author of the article the link points to |
+| **link_author** | String | The author of the article the link points to |
 | **excerpt** | String | An excerpt from the article the link points to |
 | **publisher** | String | The publisher of the article the link points to |
 | **photos** | Array | Photo objects with properties: |
@@ -825,7 +825,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
                you make those marker doodles?",
             "url": "https:\/\/blog.estadiezijn.nl\/post\/
                459075181\/faq-how-do-you-make-those-marker-doodles",
-            "author": "Ester Aarts",
+            "link_author": "Ester Aarts",
             "excerpt": "How I make marker doodles",
             "publisher": "blog.estadiezijn.nl",
             "photos": [
