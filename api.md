@@ -1378,6 +1378,7 @@ If omitted, the state parameter on a new post defaults to `"published"`.
 | **source_url** | String | A source attribution for the post content. | None | No |
 | **send_to_twitter** | Boolean | Whether or not to share this via any connected Twitter account on post publish. Defaults to the blog's global setting. | `false` | No |
 | **send_to_facebook** | Boolean | Whether or not to share this via any connected Facebook account on post publish. Defaults to the blog's global setting. | `false` | No |
+| **is_private** | Boolean | Whether this should be a private answer, if this is an answer. | No
 
 **If the post being created is a reblog, all of the above parameters are expected, along with:**
 
@@ -1387,6 +1388,7 @@ If omitted, the state parameter on a new post defaults to `"published"`.
 | **parent_post_id** | Integer | The unique public post ID being reblogged. | N/A | Yes |
 | **reblog_key** | String | The unique per-post hash validating that this is a genuine reblog action. | N/A | Yes |
 | **hide_trail** | Boolean | Whether or not to hide the reblog trail with this new post. Defaults to false. | `false` | No |
+| **exclude_trail_items** | Array | Instead of **hide_trail**, use this to specify an array of specific reblog trail item indexes to _exclude_ from your reblog. | `[]` | No |
 
 #### User Uploaded Media
 
@@ -1907,4 +1909,3 @@ Returns `200: OK` (post successfully unliked ) or a `404` (post ID or `reblog_ke
 | **before** | Integer | The timestamp of when you'd like to see posts before. If the Tag is a "featured" tag, use the "featured_timestamp" on the post object for pagination. | Current timestamp | No |
 | **limit** | Number | The number of results to return: 1–20, inclusive | 20 | No |
 | **filter** | String | Specifies the post format to return, other than HTML: `text` – Plain text, no HTML; `raw` – As entered by the user (no post-processing); if the user writes in Markdown, the Markdown will be returned rather than HTML; | None (HTML) | No |
-
