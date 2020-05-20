@@ -1078,7 +1078,45 @@ In the above example, the second `display` row will default to `weighted` and wi
 
 **Note:** Currently only certain Tumblr content creators can create layouts with the `carousel` display mode, but all Tumblr consumers can see it. The API will return a `403 Forbidden` response for ineligible consumers trying to create a carousel.
 
+#### Read more
+Each `rows` layout can have `truncate_after` property that describes how the content should be truncated. In other words, it is expected that "read more" is inserted below.
+
+In the below example, there are two images above the read more and the third image is expected to be truncated. Notice that `truncate_after` represents the index of the last visible block.
+
+```json
+{
+    "content": [
+        {
+            "type": "image",
+            "media": []
+        },
+        {
+            "type": "image",
+            "media": []
+        },
+        {
+            "type": "image",
+            "media": []
+        }
+    ],
+    "layout": [
+        {
+            "type": "rows",
+            "display": [
+                {"blocks": [0, 1]},
+                {"blocks": [2]},
+            ],
+            "truncate_after": 1
+        }
+    ]
+}
+```
+
+`truncate_after` must be a valid index of `content` and it cannot devide blocks in the same row. If invalid `truncate_after` is supplied when making a post, it will be ignored.
+
 ### Layout Block Type: Condensed
+
+> The condensed layout is deprecated and replaced by the `truncate_after` property in the `rows` layout. Please use the `rows` layout to get or set a recommended truncation index. If a post is created with a condensed layout, it will be ignored by the backend. In other words, a read-more will not show up in the post.
 
 Another type of layout is the `condensed` layout. The `condensed` layout describes how the content should be truncated given a Post with a legacy "read more" signifier. It contains a `truncate_after` property that specifies the last block that should be displayed in the truncated view of the post.
 

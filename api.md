@@ -1355,6 +1355,7 @@ Posts can be in the following "states" as indicated in requests to the post crea
 - `"queue"` means the post should be added to the end of the blog's post queue.
 - `"draft"` means the post should be saved as a draft.
 - `"private"` means the post should be privately published immediately.
+- `"unapproved"` means the post is a new submission.
 
 If omitted, the state parameter on a new post defaults to `"published"`.
 
@@ -1378,6 +1379,7 @@ If omitted, the state parameter on a new post defaults to `"published"`.
 | **source_url** | String | A source attribution for the post content. | None | No |
 | **send_to_twitter** | Boolean | Whether or not to share this via any connected Twitter account on post publish. Defaults to the blog's global setting. | `false` | No |
 | **send_to_facebook** | Boolean | Whether or not to share this via any connected Facebook account on post publish. Defaults to the blog's global setting. | `false` | No |
+| **is_private** | Boolean | Whether this should be a private answer, if this is an answer. | No
 
 **If the post being created is a reblog, all of the above parameters are expected, along with:**
 
@@ -1387,6 +1389,7 @@ If omitted, the state parameter on a new post defaults to `"published"`.
 | **parent_post_id** | Integer | The unique public post ID being reblogged. | N/A | Yes |
 | **reblog_key** | String | The unique per-post hash validating that this is a genuine reblog action. | N/A | Yes |
 | **hide_trail** | Boolean | Whether or not to hide the reblog trail with this new post. Defaults to false. | `false` | No |
+| **exclude_trail_items** | Array | Instead of **hide_trail**, use this to specify an array of specific reblog trail item indexes to _exclude_ from your reblog. | `[]` | No |
 
 #### User Uploaded Media
 
