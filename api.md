@@ -1355,7 +1355,6 @@ Posts can be in the following "states" as indicated in requests to the post crea
 - `"queue"` means the post should be added to the end of the blog's post queue.
 - `"draft"` means the post should be saved as a draft.
 - `"private"` means the post should be privately published immediately.
-- `"unapproved"` means the post is a new submission.
 
 If omitted, the state parameter on a new post defaults to `"published"`.
 
@@ -1910,4 +1909,3 @@ Returns `200: OK` (post successfully unliked ) or a `404` (post ID or `reblog_ke
 | **before** | Integer | The timestamp of when you'd like to see posts before. If the Tag is a "featured" tag, use the "featured_timestamp" on the post object for pagination. | Current timestamp | No |
 | **limit** | Number | The number of results to return: 1–20, inclusive | 20 | No |
 | **filter** | String | Specifies the post format to return, other than HTML: `text` – Plain text, no HTML; `raw` – As entered by the user (no post-processing); if the user writes in Markdown, the Markdown will be returned rather than HTML; | None (HTML) | No |
-
