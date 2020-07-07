@@ -31,6 +31,7 @@ If you're looking for documentation for the old API, you can find it [here](http
     - [`/likes` — Retrieve Blog's Likes](#likes--retrieve-blogs-likes)
     - [`/following` — Retrieve Blog's following](#following--retrieve-blogs-following)
     - [`/followers` — Retrieve a Blog's Followers](#followers--retrieve-a-blogs-followers)
+    - [`/followed_by` — Check If Followed By Blog](#followed_by--check-if-followed-by-blog)
     - [`/posts` – Retrieve Published Posts](#posts--retrieve-published-posts)
     - [`/posts/queue` — Retrieve Queued Posts](#postsqueue--retrieve-queued-posts)
     - [`/posts/draft` — Retrieve Draft Posts](#postsdraft--retrieve-draft-posts)
@@ -514,6 +515,28 @@ These fields are wrapped in a `users` object:
    }
 }
 ```
+
+### `/followed_by` — Check If Followed By Blog
+
+This method can be used to check if one of your blogs is followed by another blog.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/blog/{blog-identifier}/followed_by` | GET | [OAuth](#authentication) |
+
+#### Request Parameters
+
+| Parameter | Type | Description | Required? |
+| --------- | ---- | ----------- | --------- |
+| **query** | string | The name of the blog that may be following your blog | Yes |
+
+#### Response
+
+| Response Field | Type | Description |
+| -------------- | ---- | ----------- |
+| **followed_by** | Boolean | True when the queried blog follows your blog, false otherwise. |
 
 ### `/posts` – Retrieve Published Posts
 
@@ -1355,6 +1378,7 @@ Posts can be in the following "states" as indicated in requests to the post crea
 - `"queue"` means the post should be added to the end of the blog's post queue.
 - `"draft"` means the post should be saved as a draft.
 - `"private"` means the post should be privately published immediately.
+- `"unapproved"` means the post is a new submission.
 
 If omitted, the state parameter on a new post defaults to `"published"`.
 
@@ -1830,6 +1854,10 @@ These fields are wrapped in a `blog` object:
 
 Returns `200: OK` (blog successfully followed) or a 404 (blog was not found)
 
+| Response Field | Type | Description |
+| -------------- | ---- | ----------- |
+| **blog** | Object | The followed blog info |
+
 ### `/user/unfollow` – Unfollow a blog
 
 #### Method
@@ -1909,3 +1937,4 @@ Returns `200: OK` (post successfully unliked ) or a `404` (post ID or `reblog_ke
 | **before** | Integer | The timestamp of when you'd like to see posts before. If the Tag is a "featured" tag, use the "featured_timestamp" on the post object for pagination. | Current timestamp | No |
 | **limit** | Number | The number of results to return: 1–20, inclusive | 20 | No |
 | **filter** | String | Specifies the post format to return, other than HTML: `text` – Plain text, no HTML; `raw` – As entered by the user (no post-processing); if the user writes in Markdown, the Markdown will be returned rather than HTML; | None (HTML) | No |
+

@@ -13,11 +13,10 @@
         - [Text Block Basic Subtypes](#text-block-basic-subtypes)
         - [Text Block Subtype: List Item](#text-block-subtype-list-item)
         - [Inline Formatting within a Text Block](#inline-formatting-within-a-text-block)
-        - [Inline Format Types: Bold, Italic, Strikethrough](#inline-format-types-bold-italic-strikethrough)
+        - [Inline Format Types: Bold, Italic, Strikethrough, Small](#inline-format-types-bold-italic-strikethrough-small)
         - [Inline Format Type: Link](#inline-format-type-link)
         - [Inline Format Type: Mention](#inline-format-type-mention)
         - [Inline Format Type: Color](#inline-format-type-color)
-        - [Inline Format Type: Size](#inline-format-type-size)
     - [Content Block Type: Image](#content-block-type-image)
         - [GIF Posters](#gif-posters)
         - [Image Attribution](#image-attribution)
@@ -359,7 +358,7 @@ You can specify that a text block is a list item by using either `ordered-list-i
         {
             "type": "text",
             "text": "But especially don't forget:"
-        }
+        },
         {
             "type": "text",
             "subtype": "unordered-list-item",
@@ -416,9 +415,11 @@ This would be rendered in HTML as the following:
 <b>supercali<i>fragilistic</i></b><i>expialidocious</i>
 ```
 
-#### Inline Format Types: Bold, Italic, Strikethrough
+#### Inline Format Types: Bold, Italic, Strikethrough, Small
 
-The basic inline formatting types that require no additional information are `bold`, `italic`, and `strikethrough`. They are used as described above:
+The basic inline formatting types that require no additional information are `bold`, `italic`, `strikethrough`, and `small`.
+
+They are used as described above:
 
 ```JSON
 {
@@ -434,6 +435,22 @@ The basic inline formatting types that require no additional information are `bo
             "start": 14,
             "end": 20,
             "type": "italic"
+        }
+    ]
+}
+```
+
+Note: `small` refers to [one-text-size smaller by default](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/small).
+
+```JSON
+{
+    "type": "text",
+    "text": "some small text",
+    "formatting": [
+        {
+            "start": 5,
+            "end": 10,
+            "type": "small"
         }
     ]
 }
