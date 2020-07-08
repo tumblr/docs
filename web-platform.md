@@ -49,6 +49,47 @@ window.tumblr.getCssMap().then(cssMap => {
 
 An array of all class names that are, in our source code, labeled as `'post'`. A lot of the values are going to be arrays with a length of 1, but in some cases, like this, we have more than one style of post. That snippet flips 'em all.
 
+### `languageData`
+If you want to avoid dealing with class names entirely, one way of querying for elements consistently might be to look for other element properties, like `aria-label`, that don't get hashed. Only problem there is that they are localized to each user's display language.
+
+This object provides a map of English root strings to the equivalents in the current language. For a user looking at Tumblr in Spanish, it would look something like this:
+```js
+{
+  code: 'es_ES',
+  translations: {
+    // Truncated - it's a large object
+    Edit: 'Editar',
+    'Edit Appearance': 'Modificar apariencia',
+    'Eh?': '¿Eh?',
+  },
+}
+```
+
+If you wanted to query for all the edit buttons on a page, that could look like this:
+```js
+document.querySelectorAll(`button[aria-label="${window.tumblr.languageData.translations['Edit'] || 'Edit'}"`)
+```
+
+When a user has their language set to English, the `translations` object will be empty - hence the `|| 'Edit'` in the example above.
+
+### `apiFetch`
+This function is a helper, used to make requests to the Tumblr API in the exact same way all our in-house web code does.
+
+Here's a simple example of how it would work.
+
+```ts
+window.tumblr.apiFetch('/v2/tagged', { method: 'GET', queryParams: { tag: 'furby' }}).then(response => {
+  console.log(response);
+})
+```
+
+The first parameter is the path for the API route, without the host. You can see documentation of our API routes [right here](https://github.com/tumblr/docs/blob/master/api.md).
+
+Internally, this is using the native `fetch` function, and so the second parameter object accepts all keys that [the native one](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) does, with two major differences:
+
+1. `queryParams` - As in the example above, `apiFetch` accepts a `queryParams` object. This will encode the params and append them to the request URL, so you don't need to do that yourself.
+2. `body` - When making `POST` requests, `apiFetch` accepts an object as the `body` param, and stringifies it for you, unlike native `fetch`.
+
 ## Help
 
 If something's not working as expected, or you've got feature requests, please create an issue in this here repo!
