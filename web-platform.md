@@ -90,6 +90,19 @@ Internally, this is using the native `fetch` function, and so the second paramet
 1. `queryParams` - As in the example above, `apiFetch` accepts a `queryParams` object. This will encode the params and append them to the request URL, so you don't need to do that yourself.
 2. `body` - When making `POST` requests, `apiFetch` accepts an object as the `body` param, and stringifies it for you, unlike native `fetch`.
 
+### `on()` and `off()`
+These are used to add and remove callbacks for various events that the website sends. The first parameter is the event name, and the second parameter is a function to call when the event happens. This function will return `true` or `false` to indicate whether the addition or removal was successful.
+
+_Right now, `navigation` is the only supported event name._ Here is an example of how to monitor client-side navigation changes:
+
+```ts
+const navigationHandler = () => console.log(`The page just changed to ${window.location.href}.`);
+window.tumblr.on('navigation', navigationHandler);
+
+// Later, when you no longer want to listen to navigation events
+window.tumblr.off('navigation', navigationHandler);
+```
+
 ## Help
 
 If something's not working as expected, or you've got feature requests, please create an issue in this here repo!
