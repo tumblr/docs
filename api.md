@@ -1,10 +1,10 @@
 # Tumblr API
 
-Welcome to the Tumblr API! There isn't anything we enjoy more than seeing talented designers and engineers using Tumblr to invent whole new forms of creative expression. We've put a tremendous amount of care into making this API functional and flexible enough for any projects you throw at it. Join us in our [discussion group](https://groups.google.com/group/tumblr-api/) to talk about how to use it, what could be better, and all the amazing things you're going to build with it. Follow our [Engineering Blog](https://engineering.tumblr.com/) for important news and announcements. Please use the API [responsibly](https://www.tumblr.com/docs/api_agreement), and [send us your feedback](mailto:api@tumblr.com). Enjoy!
+Welcome to the Tumblr API! There isn't anything we enjoy more than seeing talented designers and engineers using Tumblr to invent whole new forms of creative expression. We've put a tremendous amount of care into making this API functional and flexible enough for any projects you throw at it. Drop a line in the [GitHub Issues](https://github.com/tumblr/docs/issues) if you have ideas for what could be better, or want to discuss all the amazing things you're going to build with it. Follow our [Engineering Blog](https://engineering.tumblr.com/) for important news and announcements. Please use the API responsibly and read the [Application Developer and API License Agreement](https://www.tumblr.com/docs/api_agreement). If you run into problems with the Tumblr API, please use [our official support form](https://www.tumblr.com/support) to request help. Enjoy!
 
 Tumblr also supports an API that delivers content according to the [oEmbed standard](http://oembed.com/). Our oEmbed API endpoint is `https://www.tumblr.com/oembed`, which supports post URLs in the format `https://*.tumblr.com/post/*`.
 
-If you're looking for documentation for the old API, you can find it [here](https://www.tumblr.com/docs/api/v1).
+If you're looking for documentation for the old v1 API, you can find it [here](https://www.tumblr.com/docs/api/v1).
 
 ## Table of Contents
 
