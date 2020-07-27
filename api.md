@@ -43,6 +43,7 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
     - [`/posts/{post-id}` - Fetching a Post (Neue Post Format)](#postspost-id---fetching-a-post-neue-post-format)
     - [`/posts/{post-id}` - Editing a Post (Neue Post Format)](#postspost-id---editing-a-post-neue-post-format)
     - [`/post/delete` – Delete a Post](#postdelete--delete-a-post)
+    - [`/notes` - Get notes for a specific Post](#notes--get-notes-for-a-specific-post)
 - [User Methods](#user-methods)
     - [`/user/info` – Get a User's Information](#userinfo--get-a-users-information)
     - [`/user/dashboard` – Retrieve a User's Dashboard](#userdashboard--retrieve-a-users-dashboard)
@@ -532,6 +533,12 @@ This method can be used to check if one of your blogs is followed by another blo
 | --------- | ---- | ----------- | --------- |
 | **query** | string | The name of the blog that may be following your blog | Yes |
 
+Example usage:
+
+```
+GET https://api.tumblr.com/v2/blog/YOUR-BLOG.tumblr.com/followed_by?query=staff
+```
+
 #### Response
 
 | Response Field | Type | Description |
@@ -572,6 +579,8 @@ This method can be used to check if one of your blogs is followed by another blo
 #### Response
 
 Each response includes a `blog` object that is the equivalent of an `/info` [response](#blog-info). Posts are returned as an array attached to the `posts` field.
+
+**Important note:** Post content can be in two formats: legacy or Neue Post Format (NPF). By default, posts returned from this endpoint (and any other endpoint that returns posts) will be in the legacy post-type-based content formats described below. NPF-created posts from the official Tumblr mobile apps will be returned as text/regular posts to maintain backwards compatibility. To help transition to an NPF-only world, you can pass along the `npf=true` query parameter to force _all posts_ returned here to be in Neue Post Format (also described below).
 
 **Fields available for all Post types:**
 
@@ -1624,6 +1633,87 @@ See the notes from the NPF Post creation route for info about this.
 
 Returns `200: OK` (successfully deleted) or an error code.
 
+### `/notes` - Get notes for a specific Post
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/blog/{blog-identifier}/notes` | GET | [API Key](#authentication) |
+
+#### Request Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **id** | Number | The ID of the post to fetch notes for | N/A | Yes |
+| **before_timestamp** | Number | Fetch notes created before this timestamp, for pagination. This is a unix timestamp in seconds precision, but microsecond precision for `conversation` mode. | N/A | No |
+| **mode** | String | The response formatting mode, see list below. | `"all"` | No |
+
+The `mode` field can be one of a few things:
+
+- `"all"` loads all notes for the post in reverse chronological order.
+- `"rollup"` loads only likes and reblogs.
+- `"likes"` loads only likes.
+- `"conversation"` loads only reblogs with added text commentary and replies, with the rest in a `rollup_notes` field.
+- `"reblogs_with_tags"` loads only reblogs, and includes a `tags` array field per note.
+
+And different modes can cause the response to contain different things.
+
+Example request:
+
+```
+GET https://api.tumblr.com/v2/blog/YOUR-BLOG.tumblr.com/notes?id=1234567890000&mode=all&before_timestamp=1234567890
+```
+
+#### Response
+
+Returns `200: OK` with an array of `notes`, along with more info, and a `_links` object to load more notes.
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| **notes** | Array | An array of note objects, which may be formatted differently based on the mode and note type |
+| **rollup_notes** | Array | In "conversation" mode, this contains notes not listed in the `notes` array. |
+| **total_notes** | Number | The total notes, which can change depending on the mode. |
+| **total_likes** | Number | The total likes, when mode is `conversation`. |
+| **total_reblogs** | Number | The total reblogs, when mode is `conversation`. |
+| **_links** | Object | Contains a `next` link object for pagination. |
+
+Example response:
+
+```JSON
+{
+    "meta": {
+        "status": 200,
+        "msg": "OK"
+    },
+    "response": {
+        "notes": [
+            {
+                "type": "reblog",
+                "timestamp": 1595527574,
+                "blog_name": "test-blog",
+                "blog_uuid": "t:abcd1234",
+                "blog_url": "https://test-blog.tumblr.com/",
+                "followed": false,
+                "avatar_shape": "square",
+                "post_id": "1123456688899000",
+                "reblog_parent_blog_name": "other-test-blog"
+            },
+            {
+                "type": "like",
+                "timestamp": 1595527569,
+                "blog_name": "test-blog",
+                "blog_uuid": "t:abcd1234",
+                "blog_url": "https://test-blog.tumblr.com/",
+                "followed": false,
+                "avatar_shape": "square"
+            }
+        ],
+        "total_notes": 2
+    }
+}
+```
+
 ## User Methods
 
 ### `/user/info` – Get a User's Information
@@ -1714,7 +1804,9 @@ Use this method to retrieve the dashboard that matches the OAuth credentials sub
 
 #### Response
 
-Dashboard responses include the fields returned in `/posts` [responses](#post--create-a-new-blog-post-legacy) (with all the various type-specific fields), but without the blog object. Instead, a blog_name field identifies the blog for each post returned.
+Dashboard responses include the fields returned in `/posts` [responses](#posts--retrieve-published-posts) (with all the various type-specific fields), but without the blog object. Instead, a `blog_name` field identifies the blog for each post returned.
+
+**Important note:** Post content can be in two formats: legacy or Neue Post Format (NPF). By default, posts returned from this endpoint (and any other endpoint that returns posts) will be in the legacy post-type-based content formats [described here](#posts--retrieve-published-posts). NPF-created posts from the official Tumblr mobile apps will be returned as text/regular posts to maintain backwards compatibility. To help transition to an NPF-only world, you can pass along the `npf=true` query parameter to force _all posts_ returned here to be in Neue Post Format (also [described here](#posts--retrieve-published-posts)).
 
 **Example**
 
