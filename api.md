@@ -1406,12 +1406,14 @@ If omitted, the state parameter on a new post defaults to `"published"`.
 | **content** | Array | An array of [NPF content blocks](npf-spec.md) to be used to make the post. | N/A | Yes |
 | **layout** | Array | An array of [NPF layout objects](npf-spec.md) to be used to lay out the post content. | `[]` | No |
 | **state** | String | The initial [state of the new post](#note-about-post-states), such as "published" or "queued". | `"published"` | No |
-| **publish_on** | String | The exact date and time (ISO 8601 format) to publish the post, if desired. This parameter will be ignored unless the `state` parameter is `"queue"`. | Now | No |
+| **publish_on** | String | The exact _future_ date and time (ISO 8601 format) to publish the post, if desired. This parameter will be ignored unless the `state` parameter is `"queue"`. | Now | No |
+| **date** | String | The exact date and time (ISO 8601 format) in the past to _backdate_ the post, if desired. This backdating does not apply to when the post shows up in the Dashboard. | Now | No |
 | **tags** | String | A comma-separated list of tags to associate with the post. | None | No |
 | **source_url** | String | A source attribution for the post content. | None | No |
 | **send_to_twitter** | Boolean | Whether or not to share this via any connected Twitter account on post publish. Defaults to the blog's global setting. | `false` | No |
 | **send_to_facebook** | Boolean | Whether or not to share this via any connected Facebook account on post publish. Defaults to the blog's global setting. | `false` | No |
-| **is_private** | Boolean | Whether this should be a private answer, if this is an answer. | No
+| **is_private** | Boolean | Whether this should be a private answer, if this is an answer. | `false` | No |
+| **slug** | String | A custom URL slug to use in the post's permalink URL | Automatically generated based on the post's content | No |
 
 **If the post being created is a reblog, all of the above parameters are expected, along with:**
 
@@ -1649,13 +1651,13 @@ Returns `200: OK` (successfully deleted) or an error code.
 | **before_timestamp** | Number | Fetch notes created before this timestamp, for pagination. This is a unix timestamp in seconds precision, but microsecond precision for `conversation` mode. | N/A | No |
 | **mode** | String | The response formatting mode, see list below. | `"all"` | No |
 
-The `mode` field can be one of a few things:
+The `mode` field can be one of a few things, most of which act as filters for the types of notes returned. All return notes in reverse chronological order.
 
-- `"all"` loads all notes for the post in reverse chronological order.
-- `"rollup"` loads only likes and reblogs.
-- `"likes"` loads only likes.
-- `"conversation"` loads only reblogs with added text commentary and replies, with the rest in a `rollup_notes` field.
-- `"reblogs_with_tags"` loads only reblogs, and includes a `tags` array field per note.
+- `"all"` loads all notes for the post.
+- `"likes"` loads only likes for the post.
+- `"conversation"` loads only replies and reblogs with added text commentary, with the rest of the notes (likes, reblogs without commentary) in a `rollup_notes` field.
+- `"rollup"` loads only like and reblog notes for the post in the `notes` array.
+- `"reblogs_with_tags"` loads only the reblog notes for the post, and each note object includes a `tags` array field (which may be empty).
 
 And different modes can cause the response to contain different things.
 
