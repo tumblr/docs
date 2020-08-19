@@ -1129,7 +1129,9 @@ In the below example, there are two images above the read more and the third ima
 }
 ```
 
-`truncate_after` must be a valid index of `content` and it cannot devide blocks in the same row. If invalid `truncate_after` is supplied when making a post, it will be ignored.
+The `truncate_after` can be the starting block but not the ending block. That is, the read more can come before *all* the
+ blocks (i.e. all the content in the post is under the read more), and the `truncate_after` will be -1. However, it
+  cannot come at the very last block where there is no content under it, or after (invalid index). Moreover, `truncate_after` cannot divide blocks in the same row. If an invalid `truncate_after` is supplied when making a post, it will be ignored.
 
 ### Layout Block Type: Condensed
 
