@@ -10,4 +10,4 @@ This repository contains public documentation for Tumblr's API.
 
 ## Contributing
 
-Contributions to this repository can only be made by official Tumblr staff members.
+See [the Contributing doc](CONTRIBUTING.md).

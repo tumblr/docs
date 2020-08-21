@@ -1,0 +1,1 @@
+When creating an issue, please supply as much information as possible, such as the API request you tried, the response you received from the API, what you expected, what API client you are using, etc.
