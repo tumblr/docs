@@ -1403,7 +1403,7 @@ If omitted, the state parameter on a new post defaults to `"published"`.
 
 | Parameter | Type | Description | Default | Required? |
 | --------- | ---- | ----------- | ------- | --------- |
-| **content** | Array | An array of [NPF content blocks](npf-spec.md) to be used to make the post. | N/A | Yes |
+| **content** | Array | An array of [NPF content blocks](npf-spec.md) to be used to make the post; in a reblog, this is any content you want to add. | `[]` | Yes, for new posts |
 | **layout** | Array | An array of [NPF layout objects](npf-spec.md) to be used to lay out the post content. | `[]` | No |
 | **state** | String | The initial [state of the new post](#note-about-post-states), such as "published" or "queued". | `"published"` | No |
 | **publish_on** | String | The exact _future_ date and time (ISO 8601 format) to publish the post, if desired. This parameter will be ignored unless the `state` parameter is `"queue"`. | Now | No |
@@ -1424,6 +1424,8 @@ If omitted, the state parameter on a new post defaults to `"published"`.
 | **reblog_key** | String | The unique per-post hash validating that this is a genuine reblog action. | N/A | Yes |
 | **hide_trail** | Boolean | Whether or not to hide the reblog trail with this new post. Defaults to false. | `false` | No |
 | **exclude_trail_items** | Array | Instead of **hide_trail**, use this to specify an array of specific reblog trail item indexes to _exclude_ from your reblog. | `[]` | No |
+
+Note that when making a reblog, the `trail` from the post you're reblogging is not required, and will be ignored if given. Any `content` you provide when making a reblog will be added at the end of the reblog trail, in your post.
 
 #### User Uploaded Media
 
