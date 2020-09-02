@@ -53,6 +53,7 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
     - [`/user/unfollow` – Unfollow a blog](#userunfollow--unfollow-a-blog)
     - [`/user/like` – Like a Post](#userlike--like-a-post)
     - [`/user/unlike` – Unlike a Post](#userunlike--unlike-a-post)
+    - [`/user/filtered_content` - Content Filtering](#userfiltered_content--content-filtering)
 - [Tagged Method](#tagged-method)
     - [`/tagged` – Get Posts with Tag](#tagged--get-posts-with-tag)
 
@@ -2012,6 +2013,85 @@ Returns `200: OK` (post successfully liked ) or a `404` (post ID or `reblog_key`
 #### Response
 
 Returns `200: OK` (post successfully unliked ) or a `404` (post ID or `reblog_key` was not found)
+
+### `/user/filtered_content` - Content Filtering
+
+This endpoint lets you manage the plain text content you'd like covered on your dashboard. See more info about this feature [here](https://tumblr.zendesk.com/hc/articles/360046752174).
+
+#### Limits
+
+- Each user can have a maximum of 200 filtered strings.
+- Each filtered string cannot be more than 250 characters in length.
+- Filtered strings can contain any characters that are valid UTF-8.
+
+#### Methods
+
+All of the endpoints require [OAuth](#authentication) authentication.
+
+| URI | HTTP Method | Description |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/user/filtered_content` | GET | Retrieve a list of currently-filtered content strings. |
+| `api.tumblr.com/v2/user/filtered_content` | POST | Add one or more content strings to filter. |
+| `api.tumblr.com/v2/user/filtered_content` | DELETE | Remove a content filter string. |
+
+#### Request Parameters
+
+For adding new content filters, you can add one at a time or many at once via the `POST` body:
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| **filtered_content** | String or Array of Strings | One or more than one string to add to your list of filters |
+
+Example:
+
+```
+POST https://api.tumblr.com/v2/user/filtered_content
+filtered_content=something
+
+POST https://api.tumblr.com/v2/user/filtered_content
+filtered_content[0]=something&filtered_content[1]=technology
+```
+
+For deleting a content filter, pass along the string in the query params:
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| **filtered_content** | String | Content filter string to remove. |
+
+Example:
+
+```
+DELETE https://api.tumblr.com/v2/user/filtered_content?filtered_content=something
+```
+
+#### Response
+
+For `GET` requests, the endpoint will return a `200 OK` on success, along with the list of strings:
+
+```json
+{
+    "meta": {
+        "status": 200,
+        "msg": "OK"
+    },
+    "response": {
+        "filtered_content": [
+            "technology",
+            "something",
+            "and something else"
+        ]
+    }
+}
+```
+
+For `POST` requests, the endpoint will return a `201 Created` on success, with an empty `response` object.
+
+For `DELETE` requests, the endpoint will return a `200 OK` on success, with an empty `response` object.
+
+#### Errors
+
+- `400 Bad Request` if given an invalid/empty string to filter or delete, or if given an already-filtered string.
+- `403 Forbidden` if at the maximum number of allowed filters.
 
 ## Tagged Method
 
