@@ -53,7 +53,7 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
     - [`/user/unfollow` – Unfollow a blog](#userunfollow--unfollow-a-blog)
     - [`/user/like` – Like a Post](#userlike--like-a-post)
     - [`/user/unlike` – Unlike a Post](#userunlike--unlike-a-post)
-    - [`/user/filtered_content` - Content Filtering](#userfiltered_content--content-filtering)
+    - [`/user/filtered_content` - Content Filtering](#userfiltered_content---content-filtering)
 - [Tagged Method](#tagged-method)
     - [`/tagged` – Get Posts with Tag](#tagged--get-posts-with-tag)
 
