@@ -90,6 +90,15 @@ Internally, this is using the native `fetch` function, and so the second paramet
 1. `queryParams` - As in the example above, `apiFetch` accepts a `queryParams` object. This will encode the params and append them to the request URL, so you don't need to do that yourself.
 2. `body` - When making `POST` requests, `apiFetch` accepts an object as the `body` param, and stringifies it for you, unlike native `fetch`.
 
+It's also important to know that, because Tumblr's API works with JSON objects, `apiFetch` returns the JSON response to you in the `then()` block of the Promise. Because it does some response processing to get that JSON, in certain cases it will reject the Promise or even `throw`. Here is a matrix that describes `apiFetch()`'s behavior:
+
+| `response.headers.get('content-type')` | `response.ok` | What `apiFetch()` does |
+| ----- | ----- | ----- |
+| `application/javascript` or `application/json` | `true` | Resolves the promise with the JSON of the response |
+| `application/javascript` or `application/json` | `false` | Rejects the promise with an error object |
+| any non-json content-type | `true` | Resolves the promise with `{}` |
+| any non-json content-type | `false` | `throw`s an error object |
+
 ### `on()` and `off()`
 These are used to add and remove callbacks for various events that the website sends. The first parameter is the event name, and the second parameter is a function to call when the event happens. This function will return `true` or `false` to indicate whether the addition or removal was successful.
 
