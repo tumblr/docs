@@ -1948,7 +1948,8 @@ These fields are wrapped in a `blog` object:
 
 | Parameter | Type | Description | Default | Required? |
 | --------- | ---- | ----------- | ------- | --------- |
-| url | String | The URL of the blog to follow | None | Yes |
+| url | String | The URL of the blog to follow | None | Must supply `url` or `email` |
+| email | String | The email of the blog to follow. A blog is only followable by email if it has the `Let people find your blogs through this address.` setting enabled on [tumblr.com/settings/account](https://www.tumblr.com/settings/account). | None | Must supply `url` or `email` |
 
 #### Response
 
