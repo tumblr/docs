@@ -34,6 +34,8 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
     - [`/followed_by` — Check If Followed By Blog](#followed_by--check-if-followed-by-blog)
     - [`/posts` – Retrieve Published Posts](#posts--retrieve-published-posts)
     - [`/posts/queue` — Retrieve Queued Posts](#postsqueue--retrieve-queued-posts)
+    - [`/posts/queue/reorder` — Reorder Queued Posts](#postsqueuereorder--reorder-queued-posts)
+    - [`/posts/queue/shuffle` — Shuffle Queued Posts](#postsqueueshuffle---shuffle-queued-posts)
     - [`/posts/draft` — Retrieve Draft Posts](#postsdraft--retrieve-draft-posts)
     - [`/posts/submission` — Retrieve Submission Posts](#postssubmission--retrieve-submission-posts)
     - [`/post` — Create a New Blog Post (Legacy)](#post--create-a-new-blog-post-legacy)
@@ -1179,6 +1181,8 @@ The specification for what objects you can find in these fields is [documented h
 
 ### `/posts/queue` — Retrieve Queued Posts
 
+Gives you a list of the currently queued posts for the specified blog.
+
 #### Method
 
 | URI | HTTP Method | Authentication |
@@ -1192,6 +1196,33 @@ The specification for what objects you can find in these fields is [documented h
 | **offset** | String | Post number to start at | 0 (first post) | No |
 | **limit** | Number | The number of results to return: 1–20, inclusive | 20 | No |
 | **filter** | String | Specifies the post format to return, other than HTML: `text` – Plain text, no HTML; `raw` – As entered by the user (no post-processing); if the user writes in Markdown, the Markdown will be returned rather than HTML | None (HTML) | No |
+
+### `/posts/queue/reorder` — Reorder Queued Posts
+
+This allows you to reorder a post within the queue, moving it after an existing queued post, or to the top.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/blog/{blog-identifier}/posts/queue/reorder` | POST | [OAuth](#authentication) |
+
+#### Request Body Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **post_id** | String/Integer | Post ID to move | N/A | Yes |
+| **insert_after** | String/Integer | Which post ID to move it after, or 0 to make it the first post | 0 | No |
+
+### `/posts/queue/shuffle` - Shuffle Queued Posts
+
+This randomly shuffles the queue for the specified blog.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/blog/{blog-identifier}/posts/queue/shuffle` | POST | [OAuth](#authentication) |
 
 ### `/posts/draft` — Retrieve Draft Posts
 
@@ -1949,7 +1980,7 @@ These fields are wrapped in a `blog` object:
 | Parameter | Type | Description | Default | Required? |
 | --------- | ---- | ----------- | ------- | --------- |
 | url | String | The URL of the blog to follow | None | Must supply `url` or `email` |
-| email | String | The email of the blog to follow. A blog is only followable by email if it has the `Let people find your blogs through this address.` setting enabled on [tumblr.com/settings/account](https://www.tumblr.com/settings/account). | None | Must supply `url` or `email` |
+| email | String | The email of the blog to follow. A blog is only followable by email if it has the `Let people find your blogs through this address.` setting enabled on [tumblr.com/settings/account](https://www.tumblr.com/settings/account).| None | Must supply `url` or `email` |
 
 #### Response
 
