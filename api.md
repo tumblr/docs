@@ -583,7 +583,7 @@ GET https://api.tumblr.com/v2/blog/YOUR-BLOG.tumblr.com/followed_by?query=staff
 
 Each response includes a `blog` object that is the equivalent of an `/info` [response](#blog-info). Posts are returned as an array attached to the `posts` field.
 
-**Important note:** Post content can be in two formats: legacy or Neue Post Format (NPF). By default, posts returned from this endpoint (and any other endpoint that returns posts) will be in the legacy post-type-based content formats described below. NPF-created posts from the official Tumblr mobile apps will be returned as text/regular posts to maintain backwards compatibility. To help transition to an NPF-only world, you can pass along the `npf=true` query parameter to force _all posts_ returned here to be in Neue Post Format (also described below).
+**Important note:** Post content can be in two formats: legacy or Neue Post Format (NPF). By default, posts returned from this endpoint (and any other endpoint that returns posts) will be in the legacy post-type-based content formats described below. NPF-created posts from the official Tumblr mobile apps will be returned as text/regular posts to maintain backwards compatibility. Note that this "backwards compatibility" from NPF to HTML is _best effort_. To help transition to an NPF-only world, you can pass along the `npf=true` query parameter to force _all posts_ returned here to be in Neue Post Format (also described below). Eventually, all posts will be NPF, so we strongly encourage leveraging NPF JSON via `npf=true` for post content when consuming posts via the API.
 
 **Fields available for all Post types:**
 
@@ -606,6 +606,18 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
 | **liked** | Boolean | Indicates if a user has already liked a post or not | Exists only if the request is fully authenticated with OAuth. |
 | **state** | String | Indicates the current state of the post | States are published, queued, draft and private |
 | **total_posts** | Number | The total number of post available for this request, useful for paginating through results | |
+
+#### Neue Post Format (NPF) Posts
+
+Posts that have `type: blocks` and/or `is_blocks_post_format: true` will have three fields for the post's content:
+
+| Response Field | Type | Description |
+| -------------- | ---- | ----------- |
+| **content** | Array | The content of the post. |
+| **layout** | Array | The layout of the post content. |
+| **trail** | Array | The reblog trail items, if any. |
+
+The specification for what objects you can find in these fields is [documented here](npf-spec.md).
 
 #### Legacy Text Posts
 
@@ -1166,18 +1178,6 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
    }
 }
 ```
-
-#### Neue Post Format (NPF) Posts
-
-Posts that have `type: blocks` and/or `is_blocks_post_format: true` will have three fields for the post's content:
-
-| Response Field | Type | Description |
-| -------------- | ---- | ----------- |
-| **content** | Array | The content of the post. |
-| **layout** | Array | The layout of the post content. |
-| **trail** | Array | The reblog trail items, if any. |
-
-The specification for what objects you can find in these fields is [documented here](npf-spec.md).
 
 ### `/posts/queue` — Retrieve Queued Posts
 

@@ -104,7 +104,7 @@ Each block within a Post is represented by an object in that "content" array and
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-type | string | yes | The type of the content block, which is required by all blocks.
+`type` | string | yes | The type of the content block, which is required by all blocks.
 
 Additional fields will be present based on the `type` of the block; the following sections outline what those fields are and which are required.
 
@@ -144,13 +144,13 @@ Media objects are used for image blocks, all kinds of posters (GIF, video, etc),
 
 Property | Type | Default | Required | Description
 -------- | ---- | ------- | -------- | -----------
-url | string | _N/A_ | yes | The canonical URL of the media asset
-type | string | see description | no | The MIME type of the media asset, or a best approximation will be made based on the given URL
-width | integer | 540 | no | The width of the media asset, if that makes sense (for images and videos, but not for audio)
-height | integer | 405 | no | The height of the media asset, if that makes sense (for images and videos, but not for audio)
-original_dimensions_missing | boolean | `false` | no | For display purposes, this indicates whether the dimensions are defaults
-cropped | boolean | `false` | no | This indicates whether this media object is a cropped version of the original media
-has_original_dimensions | bool | `false` | no | This indicates whether this media object has the same dimensions as the original media
+`url` | string | _N/A_ | yes | The canonical URL of the media asset
+`type` | string | see description | no | The MIME type of the media asset, or a best approximation will be made based on the given URL
+`width` | integer | 540 | no | The width of the media asset, if that makes sense (for images and videos, but not for audio)
+`height` | integer | 405 | no | The height of the media asset, if that makes sense (for images and videos, but not for audio)
+`original_dimensions_missing` | boolean | `false` | no | For display purposes, this indicates whether the dimensions are defaults
+`cropped` | boolean | `false` | no | This indicates whether this media object is a cropped version of the original media
+`has_original_dimensions` | bool | `false` | no | This indicates whether this media object has the same dimensions as the original media
 
 If the original dimensions of the media are not known, a boolean flag `original_dimensions_missing` with a value of `true` will also be included in the media object. In this scenario, `width` and `height` will be assigned default dimensional values of 540 and 405 respectively. Please note that this field should only be available when _consuming_ an NPF Post, it is not allowed during Post creation.
 
@@ -160,9 +160,9 @@ Embed iframe objects are used for constructing video iframes.
 
 Property | Type | Default | Required | Description
 -------- | ---- | ------- | -------- | -----------
-url | string | _N/A_ | yes | A URL used for constructing and embeddable video iframe
-width | integer | 540 | yes | The width of the video iframe
-height | integer | 405 | yes | The height of the video iframe
+`url` | string | _N/A_ | yes | A URL used for constructing and embeddable video iframe
+`width` | integer | 540 | yes | The width of the video iframe
+`height` | integer | 405 | yes | The height of the video iframe
 
 ### Content Block Type: Text
 
@@ -181,8 +181,9 @@ A text block represents a single paragraph of text. At its simplest, it simply w
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-text | string | yes | The text to use inside this block
-subtype | string | no | The subtype of text block, covered in the [Text Block Subtypes](#text-block-subtypes) subsection
+`text` | string | yes | The text to use inside this block
+`subtype` | string | no | The subtype of text block, covered in the [Text Block Subtypes](#text-block-subtypes) subsection
+`indent_level` | number | no | See "list item" subtype section below about using this
 
 #### Special Note: Leading and Trailing Empty Text Blocks
 
@@ -368,7 +369,136 @@ You can specify that a text block is a list item by using either `ordered-list-i
 }
 ```
 
-Note that NPF **does not allow nested lists or non-text-based lists** at this time.
+You can create nested lists via an `indent_level` field that can appear in text blocks of subtype `ordered-list-item`, `unordered-list-item`, or `indented` (blockquotes).
+
+The default `indent_level` is 0 for all cases. An `indent_level` of 1 with a list item subtype means the list item is nested; an `indent_level` of 2 means it is doubly nested, etc. up to the maximum of 7.
+
+These can be mixed: an ordered-list can be nested inside an unordered list and vice versa, and even in `indented` blockquotes (but note that there can only be one `subtype` and it will be that of the closest tag, so an `ordered-list-item` nested inside a blockquote will have `indent_level` 1 but be subtype `ordered-list-item`).
+
+For example, HTML with nested list items that looks like:
+
+```html
+<h1>Sward's Shopping List</h1>
+<ol>
+  <li>First level: Fruit
+    <ul>
+      <li>Second level: Apples
+        <ol>
+          <li>Third level: Green</li>
+        </ol>
+      </li>
+      <li>Second level: Pears</li>
+    </ul>
+  </li>
+  <li>First level: Vegetables</li>
+</ol>
+```
+
+Is represented in NPF as:
+
+```json
+{
+    "content": [
+        {
+            "type": "text",
+            "subtype": "heading1",
+            "text": "Sward's Shopping List"
+        },
+        {
+            "type": "text",
+            "subtype": "ordered-list-item",
+            "text": "First level: Fruit",
+        },
+        {
+            "type": "text",
+            "subtype": "unordered-list-item",
+            "text": "Second level: Apples",
+            "indent_level": 1
+        },
+        {
+            "type": "text",
+            "subtype": "ordered-list-item",
+            "text": "Third Level: Green",
+            "indent_level": 2
+        },
+        {
+            "type": "text",
+            "subtype": "unordered-list-item",
+            "text": "Second level: Pears",
+            "indent_level": 1
+        },
+        {
+            "type": "text",
+            "subtype": "ordered-list-item",
+            "text": "First level: Pears",
+        }
+    ]
+}
+```
+
+Indent levels always count from the left. Mixed blockquote-list-item HTML that looks like:
+
+```html
+<blockquote>
+  <p>1: blockquote, not nested</p>
+  <blockquote>
+    <p>2: blockquote, nested</p>
+    <ul>
+        <li>3: nested in two blockquotes</li>
+        <li>
+            <ol>
+                <li>4: nested in two blockquotes and a list</li>
+            </ol>
+        </li>
+        <li>3: back to level 3, double nesting</li>
+    </ul>
+  </blockquote>
+  <p>1: back to level 1, no nesting</p>
+</blockquote>
+```
+
+Is represented in NPF as:
+
+```json
+{
+    "content": [
+        {
+            "type": "text",
+            "subtype": "indented",
+            "text": "1: blockquote, not nested"
+        },
+        {
+            "type": "text",
+            "subtype": "indented",
+            "text": "2: blockquote, nested",
+            "indent_level": 1
+        },
+        {
+            "type": "text",
+            "subtype": "unordered-list-item",
+            "text": "3: nested in two blockquotes",
+            "indent_level": 2
+        },
+        {
+            "type": "text",
+            "subtype": "ordered-list-item",
+            "text": "4: nested in two blockquotes and a list",
+            "indent_level": 3
+        },
+        {
+            "type": "text",
+            "subtype": "unordered-list-item",
+            "text": "3: back to level 3, double nesting",
+            "indent_level": 2
+        },
+        {
+            "type": "text",
+            "subtype": "indented",
+            "text": "1: back to level 1, no nesting",
+        }
+    ]
+}
+```
 
 #### Inline Formatting within a Text Block
 
@@ -380,9 +510,9 @@ A single unicode character is also treated as one character in this indexing, de
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-start | integer | yes | The starting index of the formatting range (inclusive)
-end | integer | yes | The ending index of the formatting range (exclusive)
-type | string | yes | The type of formatting range
+`start` | integer | yes | The starting index of the formatting range (inclusive)
+`end` | integer | yes | The ending index of the formatting range (exclusive)
+`type` | string | yes | The type of formatting range
 
 Other keys may also be present to specify certain `type`-specific options for a range.
 
@@ -477,7 +607,7 @@ The most basic inline format type that requires extra information is the `link` 
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-url | string | yes | The link's URL!
+`url` | string | yes | The link's URL!
 
 Please note that when consuming URLs through the Tumblr API in NPF, these URLs may be converted to URLs that redirect through Tumblr's servers, for security and spam prevention.
 
@@ -508,7 +638,7 @@ But for Post creation, only the `UUID` field is required.
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-blog | object | yes | An object with a `uuid` field, which is the mentioned blog's UUID.
+`blog` | object | yes | An object with a `uuid` field, which is the mentioned blog's UUID.
 
 #### Inline Format Type: Color
 
@@ -531,7 +661,7 @@ The `color` type contains the information about the text color of the current te
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-hex | string | yes | The color to use, in standard hex format, with leading #.
+`hex` | string | yes | The color to use, in standard hex format, with leading #.
 
 ### Content Block Type: Image
 
@@ -618,12 +748,12 @@ Image blocks may contain a `colors` field which provides the dominant colors sto
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-media | array<[Media Object](#media-objects)> | yes | An array of Media Objects which represent different available sizes of this image asset.
-colors | object | no | Colors used in the image.
-feedback_token | string | no | A feedback token to use when this image block is a GIF Search result.
-poster | [Media Object](#media-objects) | no | For GIFs, this is a single-frame "poster"; see the [GIF Posters](#gif-posters) section.
-attribution | [Attribution Object](#attributions) | no | See [the Attributions section](#attributions) for details about these objects.
-alt_text | string | no | Text used to describe the image, for screen readers. 200 character maximum.
+`media` | array<[Media Object](#media-objects)> | yes | An array of Media Objects which represent different available sizes of this image asset.
+`colors` | object | no | Colors used in the image.
+`feedback_token` | string | no | A feedback token to use when this image block is a GIF Search result.
+`poster` | [Media Object](#media-objects) | no | For GIFs, this is a single-frame "poster"; see the [GIF Posters](#gif-posters) section.
+`attribution` | [Attribution Object](#attributions) | no | See [the Attributions section](#attributions) for details about these objects.
+`alt_text` | string | no | Text used to describe the image, for screen readers. 200 character maximum.
 
 #### GIF Posters
 
@@ -665,13 +795,13 @@ All `link` type blocks must have at least a `url` field. `title`, `description`,
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-url | string | yes | The URL to use for the link block.
-title | string | no | The title of where the link goes.
-description | string | no | The description of where the link goes.
-author | string | no | The author of the link's content.
-site_name | string | no | The name of the site being linked to.
-display_url | string | no | Supplied on NPF Post consumption, ignored during NPF Post creation.
-poster | [Media Object](#media-objects) | no | An image media object to use as a "poster" for the link.
+`url` | string | yes | The URL to use for the link block.
+`title` | string | no | The title of where the link goes.
+`description` | string | no | The description of where the link goes.
+`author` | string | no | The author of the link's content.
+`site_name` | string | no | The name of the site being linked to.
+`display_url` | string | no | Supplied on NPF Post consumption, ignored during NPF Post creation.
+`poster` | [Media Object](#media-objects) | no | An image media object to use as a "poster" for the link.
 
 When you are creating a link block, you do not need to supply the `display_url` field. It will be ignored by the backend on Post creation. Creating a new link block looks like this:
 
@@ -725,17 +855,17 @@ An `audio` block represents a playable track. At a minimum, the `provider` field
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-url | string | maybe | The URL to use for the audio block, if no `media` is present.
-media | [Media Object](#media-objects) | maybe | The [Media Object](#media-objects) to use for the audio block, if no `url` is present.
-provider | string | no | The provider of the audio source, whether it's `tumblr` for native audio or a trusted third party.
-title | string | no | The title of the audio asset.
-artist | string | no | The artist of the audio asset.
-album | string | no | The album from which the audio asset originated.
-poster | [Media Object](#media-objects) | no | An image media object to use as a "poster" for the audio track, usually album art.
-embed_html | string | no | HTML code that could be used to embed this audio track into a webpage.
-embed_url | string | no | A URL to the embeddable content to use as an iframe.
-metadata | object | no | Optional provider-specific metadata about the audio track.
-attribution | [Attribution Object](#attributions) | no | Optional attribution information about where the audio track came from.
+`url` | string | maybe | The URL to use for the audio block, if no `media` is present.
+`media` | [Media Object](#media-objects) | maybe | The [Media Object](#media-objects) to use for the audio block, if no `url` is present.
+`provider` | string | no | The provider of the audio source, whether it's `tumblr` for native audio or a trusted third party.
+`title` | string | no | The title of the audio asset.
+`artist` | string | no | The artist of the audio asset.
+`album` | string | no | The album from which the audio asset originated.
+`poster` | [Media Object](#media-objects) | no | An image media object to use as a "poster" for the audio track, usually album art.
+`embed_html` | string | no | HTML code that could be used to embed this audio track into a webpage.
+`embed_url` | string | no | A URL to the embeddable content to use as an iframe.
+`metadata` | object | no | Optional provider-specific metadata about the audio track.
+`attribution` | [Attribution Object](#attributions) | no | Optional attribution information about where the audio track came from.
 
 An `audio` block may have a canonical `url` specified which, when visited in a web browser, will allow the track to be played. If the track can be embedded on a web page, then an `audio` block will have an `embed_html` field present and, optionally, the `embed_url`.
 
@@ -816,16 +946,16 @@ A `video` block represents a playable video. At a minimum, the `provider` field 
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-url | string | maybe | The URL to use for the video block, if no `media` is present.
-media | [Media Object](#media-objects) | maybe | The [Media Object](#media-objects) to use for the video block, if no `url` is present.
-provider | string | no | The provider of the video, whether it's `tumblr` for native video or a trusted third party.
-embed_html | string | no | HTML code that could be used to embed this video into a webpage.
-embed_iframe | [Embed Iframe Object](#embed-iframe-objects) | no | An embed iframe object used for constructing video iframes.
-embed_url | string | no | A URL to the embeddable content to use as an iframe.
-poster | [Media Object](#media-objects) | no | An image media object to use as a "poster" for the video, usually a single frame.
-metadata | object | no | Optional provider-specific metadata about the video.
-attribution | [Attribution Object](#attributions) | no | Optional attribution information about where the video came from.
-can_autoplay_on_cellular | boolean | no | Whether this video can be played on a cellular connection.
+`url` | string | maybe | The URL to use for the video block, if no `media` is present.
+`media` | [Media Object](#media-objects) | maybe | The [Media Object](#media-objects) to use for the video block, if no `url` is present.
+`provider` | string | no | The provider of the video, whether it's `tumblr` for native video or a trusted third party.
+`embed_html` | string | no | HTML code that could be used to embed this video into a webpage.
+`embed_iframe` | [Embed Iframe Object](#embed-iframe-objects) | no | An embed iframe object used for constructing video iframes.
+`embed_url` | string | no | A URL to the embeddable content to use as an iframe.
+`poster` | [Media Object](#media-objects) | no | An image media object to use as a "poster" for the video, usually a single frame.
+`metadata` | object | no | Optional provider-specific metadata about the video.
+`attribution` | [Attribution Object](#attributions) | no | Optional attribution information about where the video came from.
+`can_autoplay_on_cellular` | boolean | no | Whether this video can be played on a cellular connection.
 
 A `video` block may have a canonical `url` specified which, when visited in a web browser, will allow the video to be played. If the video can be embedded on a web page, then the block will have an `embed_html` field present and, optionally, the `embed_url`.
 
@@ -923,7 +1053,7 @@ To lay out the blocks of a Post in a way that's different than the default verti
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-type | string | yes | The type of layout block; current types should be one of `"rows"`, `"ask"`, or `"condensed"`.
+`type` | string | yes | The type of layout block; current types should be one of `"rows"` or `"ask"`.
 
 ### Layout Default Behavior Recommendations
 
@@ -983,8 +1113,8 @@ Each `rows` layout object requires a display object under the `display` key. Thi
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-blocks | array | yes | This is an array of block indices to use in this row.
-mode | object | no | To specify a display mode other than `weighted`, add an object here with a `type`.
+`blocks` | array | yes | This is an array of block indices to use in this row.
+`mode` | object | no | To specify a display mode other than `weighted`, add an object here with a `type`.
 
 In the above example, the two `image` type content blocks are laid out into one row with each image taking up half of the row's total width. The width of each element within the row is determined by however many blocks are in the row. The elements in each `rows` array signifies which content block is placed in the given row position, provided as the index within the `content` array.
 
@@ -1096,6 +1226,7 @@ In the above example, the second `display` row will default to `weighted` and wi
 **Note:** Currently only certain Tumblr content creators can create layouts with the `carousel` display mode, but all Tumblr consumers can see it. The API will return a `403 Forbidden` response for ineligible consumers trying to create a carousel.
 
 #### Read more
+
 Each `rows` layout can have `truncate_after` property that describes how the content should be truncated. In other words, it is expected that "read more" is inserted below.
 
 In the below example, there are two images above the read more and the third image is expected to be truncated. Notice that `truncate_after` represents the index of the last visible block.
@@ -1168,8 +1299,8 @@ Posts may be created or updated using either the `truncate_after` or `blocks` fi
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-truncate_after | int | maybe | The last block to display before the Read More signifier. Required if `blocks` is not supplied.
-blocks | array | maybe | This is an array of block indices that are a part of the truncated version of the Post. Required if `truncate_after` is not supplied. Must be sequential, not empty, and begin with 0.
+`truncate_after` | int | maybe | The last block to display before the Read More signifier. Required if `blocks` is not supplied.
+`blocks` | array | maybe | This is an array of block indices that are a part of the truncated version of the Post. Required if `truncate_after` is not supplied. Must be sequential, not empty, and begin with 0.
 
 Note that there are certain contexts where the `condensed` layout should not be displayed (namely a permalink revealing the full Post), but the server will return this `condensed` layout for all contexts; this means it is up to the client to determine whether to actually use it. It is expected that the client should use it in every context (a dashboard, via search, etc) except viewing the blog or Post directly.
 
@@ -1197,8 +1328,8 @@ In the below example, blocks at index 0 and 1 are a part of @cyle's ask. Any rem
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-blocks | array | yes | This is an array of block indices that are a part of the ask content of the Post.
-attribution | [Attribution Object](#attributions) | no | If the ask is not anonymous, this will include information about the blog that submitted the ask.
+`blocks` | array | yes | This is an array of block indices that are a part of the ask content of the Post.
+`attribution` | [Attribution Object](#attributions) | no | If the ask is not anonymous, this will include information about the blog that submitted the ask.
 
 See also the [Attribution Type: Blog](#attribution-type-blog) section for more information.
 
@@ -1264,11 +1395,11 @@ For example:
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-post | object | no | An object with information about the Post in the reblog trail; contains at least an `id` field. This won't be available for ["broken" trail items](#broken-trail-items).
-blog | object | no | An object with information about the Post's blog in the reblog trail; contains at least a `uuid` field. This won't be available for ["broken" trail items](#broken-trail-items).
-content | array | yes | The content of the Post in the trail.
-layout | array | yes | The layout to use for the content of the Post in the trail.
-broken_blog_name | string | no | The name of the blog from a broken trail item; see ["broken" trail items](#broken-trail-items).
+`post` | object | no | An object with information about the Post in the reblog trail; contains at least an `id` field. This won't be available for ["broken" trail items](#broken-trail-items).
+`blog` | object | no | An object with information about the Post's blog in the reblog trail; contains at least a `uuid` field. This won't be available for ["broken" trail items](#broken-trail-items).
+`content` | array | yes | The content of the Post in the trail.
+`layout` | array | yes | The layout to use for the content of the Post in the trail.
+`broken_blog_name` | string | no | The name of the blog from a broken trail item; see ["broken" trail items](#broken-trail-items).
 
 ### "Broken" Trail Items
 
@@ -1311,7 +1442,7 @@ Content blocks and layout blocks can have an `attribution` object containing a `
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-type | string | yes | The type of the attribution; current valid values are `"link"`, `"blog"`, `"post"`, or `"app"`.
+`type` | string | yes | The type of the attribution; current valid values are `"link"`, `"blog"`, `"post"`, or `"app"`.
 
 ### Attribution Type: Post
 
@@ -1347,9 +1478,9 @@ For example:
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-url | string | yes | The URL of the Post to be attributed.
-post | object | yes | A Post object with at least an `id` field.
-blog | object | yes | A Tumblelog object with at least a `uuid` field.
+`url` | string | yes | The URL of the Post to be attributed.
+`post` | object | yes | A Post object with at least an `id` field.
+`blog` | object | yes | A Tumblelog object with at least a `uuid` field.
 
 ### Attribution Type: Link
 
@@ -1377,7 +1508,7 @@ For example:
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-url | string | yes | The URL to be attributed for the content.
+`url` | string | yes | The URL to be attributed for the content.
 
 ### Attribution Type: Blog
 
@@ -1385,7 +1516,7 @@ To attribute something to a specific blog on Tumblr, you can use the `blog` type
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-blog | object | yes | A Tumblelog object with at least a `uuid` field.
+`blog` | object | yes | A Tumblelog object with at least a `uuid` field.
 
 For example, ask/answer posts will have layout block that has an array of blocks in the ask and a blog `attribution` object that points to the blog making the ask. In the case of an anonymous ask, no `attribution` object is given.
 
@@ -1467,10 +1598,10 @@ Block types can have an attribution for what third-party app created them, or we
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-url | string | yes | The canonical URL to the source content in the third-party app.
-app_name | string | no | The name of the application to be attributed.
-display_text | string | no | Any display text that the client should use with the attribution.
-logo | [Media Object](#media-objects) | no | A specific logo [Media Object](#media-objects) that the client should use with the third-party app attribution.
+`url` | string | yes | The canonical URL to the source content in the third-party app.
+`app_name` | string | no | The name of the application to be attributed.
+`display_text` | string | no | Any display text that the client should use with the attribution.
+`logo` | [Media Object](#media-objects) | no | A specific logo [Media Object](#media-objects) that the client should use with the third-party app attribution.
 
 The `display_text` value may differ for audio and video content:
 
