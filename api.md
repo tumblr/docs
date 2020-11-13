@@ -20,7 +20,10 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
     - [About the API Documentation](#about-the-api-documentation)
 - [Official Tumblr API Client Libraries](#official-tumblr-api-client-libraries)
 - [Authentication](#authentication)
-    - [OAuth](#oauth)
+- [OAuth1 Authorization](#oauth1-authorization)
+    - [Temporary Credentials Endpoint](#temporary-credentials-endpoint)
+    - [Resource Owner Authorization Endpoint](#resource-owner-authorization-endpoint)
+    - [Access Token Endpoint](#access-token-endpoint)
 - [Common Response Elements](#common-response-elements)
     - [Links](#links)
     - [Tag Objects](#tag-objects)
@@ -198,19 +201,88 @@ The API uses three different levels of authentication, depending on the method.
 - **API key:** Requires an API key. Use your OAuth Consumer Key as your `api_key`.
   - Example: `api_key=PyezS3Q4Smivb24d9SzZGYSuh--IaMfAkE`
   - Get an OAuth key: [register an application](https://www.tumblr.com/oauth/apps)
-- **OAuth:** Requires a signed request that meets the [OAuth 1.0a Protocol](http://oauth.net/).
+- **OAuth:** Requires a signed request that meets the [OAuth 1.0a Protocol](https://oauth.net/1/).
 
 Each method description below includes a note about the authentication level.
 
-### OAuth
+## OAuth1 Authorization
 
-The API supports the [OAuth 1.0a Protocol](http://oauth.net/), accepting parameters via the `Authorization` header, with the `HMAC-SHA1` signature method only. There's probably already an [OAuth client library](http://oauth.net/code/) for your platform.
+The API supports the [OAuth 1.0a Protocol](https://oauth.net/1/), accepting parameters via the `Authorization` header, with the `HMAC-SHA1` signature method only.
 
-#### Endpoints
+### Temporary Credentials Endpoint
 
-- **Request-token URL:** `https://www.tumblr.com/oauth/request_token`
-- **Authorize URL:** `https://www.tumblr.com/oauth/authorize`
-- **Access-token URL:** `https://www.tumblr.com/oauth/access_token`
+This route is used to create a temporary oauth1 token to be used for oauth1 authorization. See [https://tools.ietf.org/html/rfc5849#section-2.1](https://tools.ietf.org/html/rfc5849#section-2.1) for further information.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `https://www.tumblr.com/oauth/request_token` | POST | OAuth (client credentials) |
+
+#### Request Parameters
+
+None.
+
+#### Response
+
+Returns `200 OK` or an error code.
+
+| Response Field | Type | Description |
+| -------------- | ---- | ----------- |
+| **oauth_token** | String | The access token to use during the authorization process |
+| **oauth_token_secret** | String | The access token secret to use during the authorization process |
+
+### Resource Owner Authorization Endpoint
+
+After retrieving temporary credentials, redirect the user to this endpoint so they can authorize your app. See [https://tools.ietf.org/html/rfc5849#section-2.2](https://tools.ietf.org/html/rfc5849#section-2.2) for further information.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `https://www.tumblr.com/oauth/authorize` | GET | None |
+
+#### Request Parameters
+
+Include these parameters in the query string when you redirect the user.
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **oauth_token** | String | The temporary access token from the temporary credentials request  | N/A | Yes |
+| **source** | String | An optional identifier that indicates where the process started | N/A | No |
+
+#### Response
+
+Upon successful authorization, the user is redirected to your callback url with the following parameters in the query string:
+
+- **oauth_token** - The access token retrieved from the temporary credentials request
+- **oauth_verifier** - The token required to retrieve an access token
+- **source** - The optional identifier that indicates where the process started
+
+### Access Token Endpoint
+
+The endpoint that is used to exchange an `oauth_verifier` token for an access token and secret for the user. See [https://tools.ietf.org/html/rfc5849#section-2.3](https://tools.ietf.org/html/rfc5849#section-2.3) for further information.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `https://www.tumblr.com/oauth/access_token` | GET | OAuth (temporary credentials) |
+
+#### Request Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **oauth_verifier** | String | The token from the authorize redirect query string | N/A | Yes |
+
+#### Response
+
+Returns `200 OK` or an error code.
+
+| Response Field | Type | Description |
+| -------------- | ---- | ----------- |
+| **oauth_token** | String | The user's access token |
+| **oauth_token_secret** | String | The user's access token secret |
 
 ## Common Response Elements
 
