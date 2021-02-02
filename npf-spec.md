@@ -504,9 +504,9 @@ Is represented in NPF as:
 
 In addition to subtypes at the Text block level, the text within a Text block can have inline styles like bold, italic, external links, blog mentions, and colors.
 
-Inline formatting ranges (`start` and `end`) are zero-indexed and count each character as `1`. Ranges are inclusive at the start and exclusive at the end.
+Inline formatting ranges (`start` and `end`) are zero-indexed. Ranges are inclusive at the start and exclusive at the end.
 
-A single unicode character is also treated as one character in this indexing, despite possibly being multiple bytes. For example, `ø` and `🌳` are both counted as single characters in NPF. However, a composite emoji like `👨‍👨‍👦 `is five characters, as it is [made up of five unicode codepoints](http://emojipedia.org/family-man-man-boy/).
+Unicode code points are always treated as one character in this indexing, despite possibly being multiple bytes. For example, `ø` and `🌳` are both counted as single characters in NPF. However, a longer string like `👨‍👨‍👦 `is five characters, as it is [made up of five code points](http://emojipedia.org/family-man-man-boy/).
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
