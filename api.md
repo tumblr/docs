@@ -31,6 +31,9 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
 - [Blog Methods](#blog-methods)
     - [`/info` - Retrieve Blog Info](#info---retrieve-blog-info)
     - [`/avatar` — Retrieve a Blog Avatar](#avatar--retrieve-a-blog-avatar)
+    - [`/blocks` – Retrieve Blog's Blocks](#blocks--retrieve-blogs-blocks)
+    - [`/blocks` – Block a Blog](#blocks--block-a-blog)
+    - [`/blocks` – Remove a Block](#blocks--remove-a-block)
     - [`/likes` — Retrieve Blog's Likes](#likes--retrieve-blogs-likes)
     - [`/following` — Retrieve Blog's following](#following--retrieve-blogs-following)
     - [`/followers` — Retrieve a Blog's Followers](#followers--retrieve-a-blogs-followers)
@@ -41,6 +44,7 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
     - [`/posts/queue/shuffle` — Shuffle Queued Posts](#postsqueueshuffle---shuffle-queued-posts)
     - [`/posts/draft` — Retrieve Draft Posts](#postsdraft--retrieve-draft-posts)
     - [`/posts/submission` — Retrieve Submission Posts](#postssubmission--retrieve-submission-posts)
+    - [`/notifications` — Retrieve Blog's Activity Feed](#notifications--retrieve-blogs-activity-feed)
     - [`/post` — Create a New Blog Post (Legacy)](#post--create-a-new-blog-post-legacy)
     - [`/post/edit` – Edit a Blog Post (Legacy)](#postedit--edit-a-blog-post-legacy)
     - [`/post/reblog` – Reblog a Post (Legacy)](#postreblog--reblog-a-post-legacy)
@@ -477,6 +481,120 @@ Requests that are _not_ signed using OAuth1 will receive the requested avatar in
 | Response Field | Type | Description | Notes |
 | -------------- | ---- | ----------- | ----- |
 | **avatar_url** | String | The URL of the avatar image. This is also returned in the [Location HTTP header field](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.30) (see note). | An [HTTP Location header](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.30) field is returned — the response points to the avatar image. That means you can embed this method in an `img` tag in HTML. |
+
+### `/blocks` – Retrieve Blog's Blocks
+
+Get the blogs that the requested blog is currently blocking. The requesting user must be an admin of the blog to retrieve this list.
+
+Note that this endpoint is rate limited to 60 requests per minute.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/blog/{blog-identifier}/blocks` | GET | [OAuth](#authentication) |
+
+#### Request Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **offset** | Number | Block number to start at | 0 | No |
+| **limit** | Number | The number of blocks to retrieve, 1-20, inclusive | 20 | No |
+
+#### Response
+
+Returns `200 OK` or an error code.
+
+| Response Field | Type | Description | Notes |
+| -------------- | ---- | ----------- | ----- |
+| **blocked_tumblelogs** | Array | Blog objects that are blocked. | |
+| **_links** | Object | A standard `_links` object with pagination objects. | |
+
+**Example response:**
+
+```JSON
+{
+   "meta": {
+      "status": 200,
+      "msg": "OK"
+   },
+   "response": {
+      "blocked_tumblelogs": [
+         {
+            "name": "joe",
+            "url": "http:\/\/www.spammyjoe.com",
+            "updated": 1308797076,
+            "title": "Spammy Joe",
+            "description": "Posting things you don't really care for"
+         },
+         {
+            "name": "harry",
+            "url": "harryblog19.tumblr.com",
+            "updated": 1808841333,
+            "title": "The 19th Harry Blog",
+            "description": ""
+         },
+         ...
+      ],
+      "_links": {
+         "next": {
+            "href": "/v2/blog/andysblog.tumblr.com/blocks?offset=20",
+            "method": "GET",
+            "query_params": {
+               "offset": 20
+            }
+         }
+      }
+   }
+}
+```
+
+### `/blocks` – Block a Blog
+
+Note that this endpoint is rate limited to 60 requests per minute.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/blog/{blog-identifier}/blocks` | POST | [OAuth](#authentication) |
+
+#### Request Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blocked_tumblelog** | String | The tumblelog to block, specified by any blog identifier | N/A | Only if `post_id` isn't passed |
+| **post_id** | String | The anonymous post ID (asks, submissions) to block | N/A | Only if `blocked_tumblelog` isn't passed |
+
+#### Response
+
+Returns `201 Created` or an error code.
+
+### `/blocks` – Remove a Block
+
+Note that this endpoint is rate limited to 60 requests per minute.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/blog/{blog-identifier}/blocks` | DELETE | [OAuth](#authentication) |
+
+#### Request Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blocked_tumblelog** | String | The tumblelog whose block to remove, specified by any blog identifier | N/A | Only if `anonymous_only` isn't passed |
+| **anonymous_only** | Boolean | When passed without the `blocked_tumblelog` parameter, this will clear all anonymous IP blocks | N/A | Only if `blocked_tumblelog` isn't passed |
+
+- If you pass both params, `anonymous_only` is going to be ignored.
+- Passing just `anonymous_only=false` is the equivalent of no params. A `404` response will be returned.
+
+#### Response
+
+Returns `200 OK` if the block on the passed `blocked_tumblelog` parameter was successfully removed.
+
+Returns `200 OK` if all anonymous blocks were successfully removed when `anonymous_only=true` was passed without a `blocked_tumblelog` parameter in the path.
 
 ### `/likes` — Retrieve Blog's Likes
 
@@ -1346,6 +1464,62 @@ This randomly shuffles the queue for the specified blog.
 | **is_submission** | Boolean | Indicates post is a submission (true) |
 | **anonymous_name** | String | Name on an anonymous submission |
 | **anonymous_email** | String | Email on an anonymous submission |
+
+### `/notifications` — Retrieve Blog's Activity Feed
+
+Retrieve the activity items for a specific blog, in reverse chronological order.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/blog/{blog-identifier}/notifications` | GET | [OAuth](#authentication) |
+
+#### Query Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **before** | Integer | Unix epoch timestamp that begins the page, defaults to request time. | Request time | No |
+| **types** | String[] | An array of one or more types to filter by, or none if you want all | None | No |
+
+Available "types" include:
+
+| Type | Description |
+| ---- | ----------- |
+| **like** | A like on your post |
+| **reply** | A reply on your post |
+| **follow** | A new follower |
+| **mention_in_reply** | A mention of your blog in a reply |
+| **mention_in_post** | A mention of your blog in a post |
+| **reblog_naked** | A reblog of your post, without commentary |
+| **reblog_with_content** | A reblog of your post, with commentary |
+| **ask** | A new ask received |
+| **answered_ask** | An answered ask that you had sent |
+| **new_group_blog_member** | A new member of your group blog |
+| **post_attribution** | Someone using your post content in their post |
+| **post_flagged** | A post of yours being flagged |
+| **post_appeal_accepted** | An appeal accepted |
+| **post_appeal_rejected** | An appeal rejected |
+| **what_you_missed** | A post we think you missed |
+| **conversational_note** | A conversational note (reply, reblog with comment) on a post you're watching |
+
+#### Response
+
+| Response Field | Type | Description |
+| -------------- | ---- | ----------- |
+| **notifications** | Array | An array of activity item objects, see below. |
+| **_links** | Object | A pagination links object with a `next` key to use, to load more activity items. |
+
+Note that different activity item objects vary field schema by activity item type. Some common fields include:
+
+- `type` -- The type of activity item, from the list above.
+- `timestamp` -- A unix epoch timestamp of when the event happened.
+- `target_post_id` -- If the activity has to do with one of your blog's posts, this will be its ID.
+- `from_tumblelog_name` -- If the activity is coming from another blog, like a Like or Reblog, this will be its name.
+- `post_id` -- For activity like Reblogs and Replies, this will be the relevant post's ID.
+- `post_tags` -- An array of used in the reblog, if any.
+- `added_text` -- For reblogs with comment, this will be a summary of the added content.
+- `reply_text` -- For replies, this will be the text of the reply.
 
 ### `/post` — Create a New Blog Post (Legacy)
 
