@@ -1613,7 +1613,7 @@ The `display_text` value may differ for audio and video content:
 
 ### Overall Post size limit
 
-There is an overall limit of 1MB (one megabyte) to a Post's total size. Theoretically this is 1 million characters, but since the NPF JSON itself takes up character space when stored, in practice the total limit is probably closer to 900,000 characters.
+There is an overall limit of 1MB (one megabyte) to a Post's total byte size when it's stored. This does not include uploaded media data like images, video, and audio, which have their own limits; this just includes the Post's text content and any references to uploaded media. Theoretically this is 1 million characters, but since the NPF JSON itself takes up character space when stored, in practice the total limit is probably closer to 900,000 characters.
 
 ### Total Content Blocks Limit
 
@@ -1661,7 +1661,7 @@ The maximum number of video blocks allowed in a single post is 10. This includes
 
 The maximum number of native (uploaded) tumblr video blocks allowed in a single post is 1.
 
-#### Audio Blocks
+### Audio Blocks
 
 The maximum number of audio blocks allowed in a single post is 10. This includes native tumblr audio and third party audio.
 
