@@ -36,6 +36,7 @@
     - [Attribution Type: Link](#attribution-type-link)
     - [Attribution Type: Blog](#attribution-type-blog)
     - [Attribution Type: App](#attribution-type-app)
+- [Post Content Limits](#post-content-limits)
 - [Mapping NPF Post Content to Legacy Post Types](#mapping-npf-post-content-to-legacy-post-types)
 
 ## Overview
@@ -1607,6 +1608,76 @@ The `display_text` value may differ for audio and video content:
 
 - Attributions for video content will try to be an artist/author name and title, if available.
 - Attributions for audio content will be "Listen on [provider name]" (ex. "Listen on Bandcamp") for all audio providers except SoundCloud, in which case it is only "Listen on" and expected to be appended with the SoundCloud logo by the client.
+
+## Post Content Limits
+
+### Overall Post size limit
+
+There is an overall limit of 1MB (one megabyte) to a Post's total size. Theoretically this is 1 million characters, but since the NPF JSON itself takes up character space when stored, in practice the total limit is probably closer to 900,000 characters.
+
+### Total Content Blocks Limit
+
+The maximum number of total content blocks allowed in a single post is 1,000.
+
+### Text Blocks
+
+The maximum number of text blocks allowed in a single post is 1,000.
+
+#### Text Block Length
+
+The maximum character length (not byte length) of a text block is 4096 characters. This includes multibyte characters such as emoji.
+
+Note that because of the 1MB total post content size limit, it is not possible to have all 1,000 allowable text blocks have 4,096 characters each. This is intentional.
+
+#### Text Block Subtypes
+
+There are no limits to the number or variance of text block subtypes.
+
+#### Inline Mentions
+
+The maximum number of mentions is 50. This is to help prevent spam and abuse.
+
+#### Inline links
+
+The maximum number of inline links is 100. This is to help prevent spam and abuse.
+
+#### Other Inline Formatting
+
+There is no limit to the amount of text that can be bold, italic, small, or strikethrough.
+
+### Link Blocks
+
+The maximum number of link blocks allowed in a single post is 10.
+
+### Image Blocks
+
+The maximum number of image blocks allowed in a single post is 10.
+
+### Video Blocks
+
+The maximum number of video blocks allowed in a single post is 10. This includes native tumblr video and third party video.
+
+#### Native Tumblr Videos
+
+The maximum number of native (uploaded) tumblr video blocks allowed in a single post is 1.
+
+#### Audio Blocks
+
+The maximum number of audio blocks allowed in a single post is 10. This includes native tumblr audio and third party audio.
+
+### Ask/Answer limits
+
+Asks and Answers have more restrictive limits for anti-abuse reasons.
+
+For Asks:
+
+- For anonymous asks: *only* text blocks are allowed.
+- For non-anonymous asks:
+    - No video blocks are allowed, either native or external.
+    - No link blocks are allowed. Users can still add inline links in text blocks.
+    - Other block types are supported, but any image media will be blurred in asks from blogs you do not follow.
+
+Answers obey the same limits as the usual post content limits above, but note that the count includes the content in the Ask blocks. For example, if the Ask includes 4 image blocks, the Answer can add up to 6 image blocks before hitting the limit of 10.
 
 ## Mapping NPF Post Content to Legacy Post Types
 
