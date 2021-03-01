@@ -782,6 +782,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
 | **blog_name** | String | The short name used to uniquely identify a blog | |
 | **id** | Number | The post's unique ID | |
 | **id_string** | String | The post's unique ID as a String | For clients that don't support 64-bit integers |
+| **genesis_post_id** | String | The post's unique "genesis" ID† as a String | Only available to the post owner in certain circumstances |
 | **post_url** | String | The location of the post | |
 | **type** | String | The type of post | See the `type` request parameter |
 | **timestamp** | Number | The time of the post, in seconds since the epoch | |
@@ -796,6 +797,8 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
 | **liked** | Boolean | Indicates if a user has already liked a post or not | Exists only if the request is fully authenticated with OAuth. |
 | **state** | String | Indicates the current state of the post | States are published, queued, draft and private |
 | **total_posts** | Number | The total number of post available for this request, useful for paginating through results | |
+
+† The "genesis" ID for a post is only available and different than its current ID if that post had been drafted, queued, or scheduled, and is now published. In which case, the "genesis" ID will be the original post ID generated when drafting, queuing, or scheduling that post. You cannot use this ID to look up the post after it has been published, but it can be useful for tracking a post from its pre- to post-published state.
 
 #### Neue Post Format (NPF) Posts
 
