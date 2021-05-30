@@ -2327,10 +2327,10 @@ Example:
 
 ```
 POST https://api.tumblr.com/v2/user/filtered_content
-filtered_content=something
+{"filtered_content":"something"}
 
 POST https://api.tumblr.com/v2/user/filtered_content
-filtered_content[0]=something&filtered_content[1]=technology
+{"filtered_content":["something","technology"]}
 ```
 
 For deleting a content filter, pass along the string in the query params:
