@@ -2325,6 +2325,20 @@ For adding new content filters, you can add one at a time or many at once via th
 
 Example:
 
+This request can be called with either `Content-Type: application/x-www-form-urlencoded` or `Content-Type: application/json`.
+
+When using `Content-Type: application/x-www-form-urlencoded`:
+
+```
+POST https://api.tumblr.com/v2/user/filtered_content
+filtered_content=something
+
+POST https://api.tumblr.com/v2/user/filtered_content
+filtered_content[0]=something&filtered_content[1]=technology
+```
+
+When using `Content-Type: application/json`:
+
 ```
 POST https://api.tumblr.com/v2/user/filtered_content
 {"filtered_content":"something"}
