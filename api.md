@@ -12,6 +12,7 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
 - [Console](#console)
 - [API Overview](#api-overview)
     - [URI Structure](#uri-structure)
+    - [Request Content Types](#request-content-types)
     - [Post Identifiers](#post-identifiers)
     - [Blog Identifiers](#blog-identifiers)
     - [Response Format](#response-format)
@@ -89,6 +90,15 @@ All Tumblr API requests start with `https://api.tumblr.com`.
 The next segment of the URI path depends on the type of request you want to make. For example, getting blog data or to make a post on a blog uses the `/v2/blog/{blog-identifier}/...` endpoint, so the full URL would be `https://api.tumblr.com/v2/blog/{blog-identifier}/...`
 
 See the different Methods sections below for complete details on the available routes.
+
+### Request Content Types
+
+Unless otherwise noted, Tumblr API endpoints that accept body parameters expect the body parameters to be encoded using one of the following content types:
+- `application/json`
+- `application/x-www-form-urlencoded`
+- `multipart/form-data`
+
+Note that the `Content-Type` header must be set accordingly, and the absence of a `Content-Type` header may result in unexpected behavior.
 
 ### Post Identifiers
 
@@ -1680,8 +1690,6 @@ If omitted, the state parameter on a new post defaults to `"published"`.
 
 ### Request Parameters
 
-**For creating a new post or reblog,** the following parameters are expected as a JSON object in the request body:
-
 | Parameter | Type | Description | Default | Required? |
 | --------- | ---- | ----------- | ------- | --------- |
 | **content** | Array | An array of [NPF content blocks](npf-spec.md) to be used to make the post; in a reblog, this is any content you want to add. | `[]` | Yes, for new posts |
@@ -1710,7 +1718,7 @@ Note that when making a reblog, the `trail` from the post you're reblogging is n
 
 #### User Uploaded Media
 
-In order to support user uploaded media (photos, videos, etc.), the creation and edit routes also support a multi-part form request where the first part contains the JSON body and subsequent parts contain media data.
+In order to support user uploaded media (photos, videos, etc.), the creation and edit routes also support a multi-part form request where the first part contains the JSON body and subsequent parts contain media data. The `Content-Type: multipart/form-data` header must be used in this case.
 
 To specify which media data pertains to which block, we use a unique identifier in the JSON body and this identifier is used as the key in the form data.
 
