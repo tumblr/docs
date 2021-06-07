@@ -74,7 +74,7 @@ _This document does not cover the full specification of that Post JSON object._ 
 
 ## Content Blocks
 
-A **content block** is one discreet unit of content; it is an abstract concept that has concrete definitions depending on the "type" of block, such as a "text", "image", "video", or "audio" Content Blocks. A lot of these content blocks could be thought of the same way HTML tags were originally conceived. However, there is no guarantee that all content blocks can be cleanly converted to and from HTML.
+A **content block** is one discrete unit of content; it is an abstract concept that has concrete definitions depending on the "type" of block, such as a "text", "image", "video", or "audio" Content Blocks. A lot of these content blocks could be thought of the same way HTML tags were originally conceived. However, there is no guarantee that all content blocks can be cleanly converted to and from HTML.
 
 A Post's content is made up of one or more of these content blocks, each of which can represent text or media. At the base of all Posts in NPF is the `content` field, which holds an array of these new blocks:
 
