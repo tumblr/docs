@@ -1063,6 +1063,7 @@ While it's entirely up to the client to determine how they want to render conten
 - If no layouts are given in the `layout` array, the content blocks should be rendered in a vertical stack as if there is a `rows` layout with each block in a row in sequential order, i.e. `[[0], [1], [2], [3], ...]`. This should be the starting assumption for rendering content blocks.
 - There should only ever be one instance of each type of layout in the `layout` array. For example, there should never be two `rows` layouts, or two `ask` layouts, but there can be one of each. Having more than one layout of the same type is not supported in the official Tumblr clients and the resulting content's appearance may be unexpected.
 - If a `rows` layout is present at content creation, it should contain references to **all content block indices**, even if only a subset of the content blocks are being arranged in a grid. For example, if you are placing two images in a single row and one text block in its own row above them, the `rows` layout should contain references to _all three blocks_, even if a content block is by itself in a row: `[[0], [1, 2]]` instead of only `[[1, 2]]`.
+- Rows with multiple block ids and carousels can _only_ contain `image` blocks. These layouts create image galleries and attempts to add other types of blocks to them will be rejected.
 
 ### Layout Block Type: Rows
 
