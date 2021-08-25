@@ -123,7 +123,7 @@ However, note that under exceptional circumstances, a unique identifier can chan
 
 ### Response Format
 
-The API returns JSON-encoded objects (`Content-Type: application/json`). Responses vary according to the method/endpoint used, but every response envelope includes these common parts:
+Unless otherwise noted, the API returns JSON-encoded objects (`Content-Type: application/json`) and every response body includes these standard properties:
 
 | Field | Notes |
 | ----- | ----- |
@@ -239,12 +239,13 @@ None.
 
 #### Response
 
-Returns `200 OK` or an error code.
+Returns `200 OK` or an error code. The response body parameters are url encoded (`Content-Type: application/x-www-form-urlencoded`), and the standard response properties are omitted.
 
 | Response Field | Type | Description |
 | -------------- | ---- | ----------- |
 | **oauth_token** | String | The access token to use during the authorization process |
 | **oauth_token_secret** | String | The access token secret to use during the authorization process |
+| **oauth_callback_confirmed** | String | Indicates whether the protocol is OAuth 1.0a |
 
 ### Resource Owner Authorization Endpoint
 
@@ -291,7 +292,7 @@ The endpoint that is used to exchange an `oauth_verifier` token for an access to
 
 #### Response
 
-Returns `200 OK` or an error code.
+Returns `200 OK` or an error code. The response body parameters are url encoded (`Content-Type: application/x-www-form-urlencoded`), and the standard response properties are omitted.
 
 | Response Field | Type | Description |
 | -------------- | ---- | ----------- |
