@@ -771,7 +771,7 @@ GET https://api.tumblr.com/v2/blog/YOUR-BLOG.tumblr.com/followed_by?query=staff
 | **api_key** | String | Your OAuth Consumer Key See Authentication for more details. | N/A | Yes |
 | **type** | String | The type of post to return. Specify one of the following: text, quote, link, answer, video, audio, photo, chat | None – return all types | No |
 | **id** | Number | A specific post ID. Returns the single post specified or (if not found) a 404 error. | None | No |
-| **tag** | String | Limits the response to posts with the specified tag | None | No |
+| **tag** | String or Array | Limits the response to posts with the specified tag(s), see note below | None | No |
 | **limit** | Number | The number of posts to return: 1–20, inclusive | 20 | No |
 | **offset** | Number | Post number to start at | 0 (first post) | No |
 | **reblog_info** | Boolean | Indicates whether to return reblog information (specify true or false). Returns the various reblogged_ fields. | False | No |
@@ -779,6 +779,17 @@ GET https://api.tumblr.com/v2/blog/YOUR-BLOG.tumblr.com/followed_by?query=staff
 | **filter** | String | Specifies the post format to return, other than HTML: text – Plain text, no HTML; raw – As entered by the user (no post-processing); if the user writes in Markdown, the Markdown will be returned rather than HTML | None (HTML) | No |
 | **before** | Number | Returns posts published earlier than a specified Unix timestamp, in seconds. | False | No |
 | **npf** | Boolean | Returns posts' content in [NPF format](npf-spec.md) instead of the legacy format. | False | No |
+
+Note that `tag` can either be a string or an array of strings:
+
+```
+Fetch posts using this one tag:
+/v2/blog/{blog-identifier}/posts?tag=something
+ or fetch posts using all of these tags:
+/v2/blog/{blog-identifier}/posts?tag[0]=something&tag[1]=example
+```
+
+When given an array of tags, posts will be returned that have _all_ of the provided tags (so in that example, posts with both "something" and "example" used on them). Also, a maximum of four tags can be provided for this use.
 
 #### Response
 
