@@ -1901,6 +1901,8 @@ This route allows you to edit posts using the Neue Post Format. Note that you ca
 
 For editing a post, all of the request parameters from the NPF Post Creation route are expected (depending on if it's an original post or reblog), along with the Post's ID in the query path.
 
+Note that the `exclude_trail_items` parameter will edit the reblog's current trail at the time of editing, not the trail that existed when the reblog was created. So if you had created a reblog and excluded trail items at creation, then are editing it to exclude trail items again, you are now editing that reblog's trail, not the parent post's trail. Basically: you can't "bring back" trail items without reblogging the parent post all over again.
+
 ### Response
 
 This returns a `200 OK` on successful post editing, or an error code. The response JSON object will contain the `post_id` of the edited post, which is intentionally a string instead of an integer for 32bit device compatibility.
