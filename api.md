@@ -1629,7 +1629,7 @@ These parameters are used for `/post`, `/post/edit`, and `/post/reblog` methods.
 | --------- | ---- | ----------- | ------- | --------- |
 | **caption** | String | The user-supplied caption | None | No |
 | **embed** | String | HTML embed code for the video or a URI to the video. If you provide an unsupported service's URI you may receive a 400 response. | None | Yes, either a URI, embed, or data. |
-| **data** | String (URL-encoded binary contents) | A video file, limit 100MB | None | Yes, either embed or data |
+| **data** | String (URL-encoded binary contents) | A video file, limited to 500MB and 10 minutes | None | Yes, either embed or data |
 
 #### Response
 
