@@ -169,8 +169,8 @@ These rate limits include:
 - 200 follows per day, per user.
 - 1,000 likes per day, per user.
 - 10 new blogs per day, per user.
-- 10 videos uploaded per day, per user.
-- 5 minutes of total video uploaded per day, per user.
+- 20 videos uploaded per day, per user.
+- 60 minutes of total video uploaded per day, per user.
 
 Note that these rate limits are based on the Tumblr servers' internal clocks and that the daily limits are per calendar day.
 
