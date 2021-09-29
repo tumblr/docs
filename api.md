@@ -63,6 +63,7 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
     - [`/user/unfollow` – Unfollow a blog](#userunfollow--unfollow-a-blog)
     - [`/user/like` – Like a Post](#userlike--like-a-post)
     - [`/user/unlike` – Unlike a Post](#userunlike--unlike-a-post)
+    - [`/user/filtered_tags` - Tag Filtering](#userfiltered_tags---tag-filtering)
     - [`/user/filtered_content` - Content Filtering](#userfiltered_content---content-filtering)
 - [Tagged Method](#tagged-method)
     - [`/tagged` – Get Posts with Tag](#tagged--get-posts-with-tag)
@@ -2317,9 +2318,85 @@ Returns `200: OK` (post successfully liked ) or a `404` (post ID or `reblog_key`
 
 Returns `200: OK` (post successfully unliked ) or a `404` (post ID or `reblog_key` was not found)
 
+### `/user/filtered_tags` - Tag Filtering
+
+This endpoint lets you manage the tagged content you'd like covered on your dashboard. See more info about this feature [here](https://tumblr.zendesk.com/hc/articles/115015814708-Tag-filtering). Note that this filtering relies on the content being tagged, but also filters tag recommendations and other tag-based content. For filtering the text content of posts, see [Content Filtering](#userfiltered_content---content-filtering).
+
+#### Methods
+
+All of the endpoints require [OAuth](#authentication) authentication.
+
+| URI | HTTP Method | Description |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/user/filtered_tags` | GET | Retrieve a list of currently-filtered tag strings. |
+| `api.tumblr.com/v2/user/filtered_tags` | POST | Add one or more tags to filter. |
+| `api.tumblr.com/v2/user/filtered_tags/{tag}` | DELETE | Remove a tag filter. |
+
+#### Request Parameters
+
+For adding new tag filters, you can add one at a time or many at once via the `POST` body:
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| **filtered_tags** | Array of Strings | One or more than one tag string to add to your list of filters |
+
+Example:
+
+```
+POST https://api.tumblr.com/v2/user/filtered_tags
+Content-Type: application/json
+{ "filtered_tags": [ "something" ] }
+
+POST https://api.tumblr.com/v2/user/filtered_tags
+Content-Type: application/json
+{ "filtered_tags": [ "something", "technology" ] }
+```
+
+For deleting a tag filter, pass along the tag string in the path:
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| **tag** | String | Tag to stop filtering; this is expected to be ["raw" URL encoded](http://www.faqs.org/rfcs/rfc3986.html). |
+
+Example:
+
+```
+DELETE https://api.tumblr.com/v2/user/filtered_tags/tag%20here
+```
+
+That would delete the tag "tag here".
+
+#### Response
+
+For `GET` requests, the endpoint will return a `200 OK` on success, along with the list of tags:
+
+```json
+{
+    "meta": {
+        "status": 200,
+        "msg": "OK"
+    },
+    "response": {
+        "filtered_tags": [
+            "technology",
+            "something",
+            "and something else"
+        ]
+    }
+}
+```
+
+For `POST` requests, the endpoint will return a `201 Created` on success, with an empty `response` object.
+
+For `DELETE` requests, the endpoint will return a `200 OK` on success, with an empty `response` object.
+
+#### Errors
+
+- `400 Bad Request` if given an invalid/empty tag to filter or delete.
+
 ### `/user/filtered_content` - Content Filtering
 
-This endpoint lets you manage the plain text content you'd like covered on your dashboard. See more info about this feature [here](https://tumblr.zendesk.com/hc/articles/360046752174).
+This endpoint lets you manage the plain text content you'd like covered on your dashboard, including blog names in the reblog trail. See more info about this feature [here](https://tumblr.zendesk.com/hc/articles/360046752174). For filtering based on tags, see [Tag Filtering](#userfiltered_tags---tag-filtering).
 
 #### Limits
 
@@ -2349,10 +2426,12 @@ Example:
 
 ```
 POST https://api.tumblr.com/v2/user/filtered_content
+Content-Type: application/x-www-form-urlencoded
 filtered_content=something
 
 POST https://api.tumblr.com/v2/user/filtered_content
-filtered_content[0]=something&filtered_content[1]=technology
+Content-Type: application/json
+{ "filtered_content": [ "something", "technology" ] }
 ```
 
 For deleting a content filter, pass along the string in the query params:
