@@ -826,13 +826,13 @@ When you are creating a link block, you do not need to supply the `display_url` 
 }
 ```
 
-On display of a link block via our API, the `url` field will be a `t.umblr.com` redirect, for potential spam prevention and security purposes, and `display_url` will show the original link, which is what we encourage clients to show in the UI:
+On display of a link block via our API, the `url` field will be a `href.li` redirect, for potential spam prevention and security purposes, and `display_url` will show the original link, which is what we encourage clients to show in the UI:
 
 ```JSON
 {
     "content": {
         "type": "link",
-        "url": "http://t.umblr.com/redirect?stuff-here",
+        "url": "https://href.li/?stuff-here",
         "display_url": "https://www.nytimes.com/2017/06/15/us/politics/secrecy-surrounding-senate-health-bill-raises-alarms-in-both-parties.html",
         "title": "Secrecy Surrounding Senate Health Bill Raises Alarms in Both Parties",
         "description": "Senate leaders are writing legislation to repeal and replace the Affordable Care Act without a single hearing on the bill and without an open drafting session.",
