@@ -34,6 +34,7 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
     - [`/avatar` — Retrieve a Blog Avatar](#avatar--retrieve-a-blog-avatar)
     - [`/blocks` – Retrieve Blog's Blocks](#blocks--retrieve-blogs-blocks)
     - [`/blocks` – Block a Blog](#blocks--block-a-blog)
+    - [`/blocks/bulk` – Block a list of Blogs](#blocksbulk--block-a-list-of-blogs)
     - [`/blocks` – Remove a Block](#blocks--remove-a-block)
     - [`/likes` — Retrieve Blog's Likes](#likes--retrieve-blogs-likes)
     - [`/following` — Retrieve Blog's following](#following--retrieve-blogs-following)
@@ -581,6 +582,27 @@ Note that this endpoint is rate limited to 60 requests per minute.
 #### Response
 
 Returns `201 Created` or an error code.
+
+### `/blocks/bulk` – Block a list of Blogs
+
+Note that this endpoint is rate limited to 60 requests per minute.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/blog/{blog-identifier}/blocks/bulk` | POST | [OAuth](#authentication) |
+
+#### Request Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blocked_tumblelogs** | String | Comma-separated list of tumblelogs to block, specified by any blog identifier | N/A | Yes |
+| **force** | Bool | Whether to force the block to go through even if it requires canceling a Post+ Subscription | false | No |
+
+#### Response
+
+Returns `200 OK` or an error code.
 
 ### `/blocks` – Remove a Block
 
