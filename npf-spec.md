@@ -666,9 +666,11 @@ Property | Type | Required | Description
 
 ### Content Block Type: Image
 
-For image blocks, the only required field is a `media` array, which contains objects per-image-size. Each image media object contains fields for `type`, `url`, `width`, and `height`; see the [Media Objects](#media-objects) section for more details.
+For image blocks, the only required field is a `media` array, which contains objects per-image-size. Each image media object contains fields for `type`, `url`, `width`, and `height`; see the [Media Objects](#media-objects) section for more details. The image sizes in the `media` array will be in order of widest-first, descending to smallest image size class.
 
 We encourage you to include a string in the optional `alt_text` field that describes the image, for use by accessibility tools such as screen readers.
+
+You may also set a `caption` which is typically shown under the image in certain places.
 
 ```JSON
 {
@@ -695,7 +697,8 @@ We encourage you to include a string in the optional `alt_text` field that descr
                     "height": 150
                 }
             ],
-            "alt_text": "Sonic the Hedgehog and friends"
+            "alt_text": "Sonic the Hedgehog and friends",
+            "caption": "I'm living my best life on earth."
         }
     ]
 }
@@ -754,7 +757,8 @@ Property | Type | Required | Description
 `feedback_token` | string | no | A feedback token to use when this image block is a GIF Search result.
 `poster` | [Media Object](#media-objects) | no | For GIFs, this is a single-frame "poster"; see the [GIF Posters](#gif-posters) section.
 `attribution` | [Attribution Object](#attributions) | no | See [the Attributions section](#attributions) for details about these objects.
-`alt_text` | string | no | Text used to describe the image, for screen readers. 200 character maximum.
+`alt_text` | string | no | Text used to describe the image, for screen readers. 4096 character maximum.
+`caption` | string | no | A caption typically shown under the image. 4096 character maximum.
 
 #### GIF Posters
 
@@ -1347,6 +1351,7 @@ For example:
         {
             "post": {
                 "id": "1234",
+                "timestamp": 1618950000
             },
             "blog": {
                 "Standard API Short Blog Info object": "goes here"
@@ -1362,6 +1367,7 @@ For example:
         {
             "post": {
                 "id": "3456",
+                "timestamp": 1618950001
             },
             "blog": {
                 "Standard API Short Blog Info object": "goes here"
@@ -1397,7 +1403,7 @@ For example:
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-`post` | object | no | An object with information about the Post in the reblog trail; contains at least an `id` field. This won't be available for ["broken" trail items](#broken-trail-items).
+`post` | object | no | An object with information about the Post in the reblog trail; contains at least an `id` field and possibly a `timestamp` field for when that post was created. That `id` won't be available for ["broken" trail items](#broken-trail-items).
 `blog` | object | no | An object with information about the Post's blog in the reblog trail; contains at least a `uuid` field. This won't be available for ["broken" trail items](#broken-trail-items).
 `content` | array | yes | The content of the Post in the trail.
 `layout` | array | yes | The layout to use for the content of the Post in the trail.
@@ -1423,6 +1429,9 @@ In these cases, the `trail` array will contain a "broken" trail item which has _
     },
     {
         "broken_blog_name": "another-broken-blog",
+        "post": {
+            "timestamp": 1618950000
+        },
         "content": [
             {
                 "type": "text",
