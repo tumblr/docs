@@ -25,6 +25,11 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
     - [Temporary Credentials Endpoint](#temporary-credentials-endpoint)
     - [Resource Owner Authorization Endpoint](#resource-owner-authorization-endpoint)
     - [Access Token Endpoint](#access-token-endpoint)
+- [OAuth2 Authorization](#oauth2-authorization)
+    - [`/oauth2/authorize` - Authorization Request](#oauth2authorize---authorization-request)
+    - [`/v2/oauth2/token` - Authorization Code Grant Request](#v2oauth2token---authorization-code-grant-request)
+    - [`/v2/oauth2/token` - Refresh Token Grant Request](#v2oauth2token---refresh-token-grant-request)
+    - [`/v2/oauth2/exchange` - OAuth1 to OAuth2 Token Exchange](#v2oauth2exchange---oauth1-to-oauth2-token-exchange)
 - [Common Response Elements](#common-response-elements)
     - [Links](#links)
     - [Tag Objects](#tag-objects)
@@ -300,6 +305,167 @@ Returns `200 OK` or an error code. The response body parameters are url encoded 
 | -------------- | ---- | ----------- |
 | **oauth_token** | String | The user's access token |
 | **oauth_token_secret** | String | The user's access token secret |
+
+## OAuth2 Authorization
+
+The API supports the [OAuth 2.0 Protocol](https://oauth.net/2/), accepting a bearer token via the `Authorization` header like so:
+
+```
+Authorization: Bearer {access_token}
+```
+
+API clients have access to [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1), [Client Credentials](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.4), and [Refresh Token](https://datatracker.ietf.org/doc/html/rfc6749#section-1.5) grants. Available scopes include `basic`, `write`, and `offline_access`. Note that you must specify a valid OAuth2 OAuth2 redirect URL for OAuth2 to be available to your application. You can find this field by editing [one of your applications](https://www.tumblr.com/oauth/apps).
+
+### The OAuth2 Authorization flow
+
+#### Step One: Redirect a user to Tumblr
+
+Redirect the user to [Tumblr's OAuth2 authorization endpoint](#oauth2authorize---authorization-request). This will prompt the user to allow your application to access the Tumblr API on their behalf.
+
+#### Step Two: Handle the callback request
+
+Once a user decides to allow or disallow your application access to their account, Tumblr will redirect them to the OAuth2 redirect URL that you set when creating your application. If there was an error processing the request, the URL will contain an `error` query parameter. If the request was successful, the URL will contain `code` and `state` query parameters. You must verify the `state` value has the same value that you included when you redirected the user to Tumblr's OAuth2 authorization endpoint, and the `code` value can be used to retrieve an access token for the user.
+
+#### Step Three: Retrieve an access token
+
+Use your applications credentials and the `code` from the previous step to issue a request to [Tumblr's OAuth2 access token endpoint](#v2oauth2token---authorization-code-grant-request). A successful request will yield a response that contains the following object:
+
+```json
+{
+    "access_token": "{access_token}",
+    "expires_in": 2520,
+    "id_token": false,
+    "refresh_token": "{refresh_token}",
+    "scope": "write offline_access",
+    "token_type": "bearer"
+}
+```
+
+You'll need to store this information somewhere so you can issue requests on behalf of the user, and so you can refresh the access token when it has expired.
+
+#### Step Four: Refresh an access token
+
+Your application can use the `expires_in` property in the access token response to determine if the user's access token has expired. If it has, you can use [the refresh token to retrieve a new access token and refresh token](#v2oauth2token---refresh-token-grant-request).
+
+### `/oauth2/authorize` - Authorization Request
+
+This request is used to request permission from a user to gain access to their account. Once a user grants your application access, they will be returned to your OAuth2 redirect Url as defined on your [OAuth Application](https://www.tumblr.com/oauth/apps).
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `www.tumblr.com/oauth2/authorize` | GET | N/A |
+
+#### Request Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **client_id** | String | Your OAuth consumer key | n/a | Yes |
+| **response_type** | String | Always `code` | n/a | Yes |
+| **scope** | String | A space delimited list of scopes | n/a | Yes |
+| **state** | String | A unique value used to maintain state | n/a | Yes |
+
+### `/v2/oauth2/token` - Authorization Code Grant Request
+
+This request allows you to exchange an authorization code for an access token.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/oauth2/token` | POST | N/A |
+
+#### Request Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **grant_type** | String | Always `authorization_code` | n/a | Yes |
+| **code** | String | The code recieved at your OAuth2 redirect Url | n/a | Yes |
+| **client_id** | String | Your OAuth consumer key | n/a | Yes |
+| **client_secret** | String | Your OAuth consumer secret | n/a | Yes |
+
+#### Response
+
+- `200` Operation was successful
+- `401` Unauthorized
+
+| Response Field | Type | Description |
+| -------------- | ---- | ----------- |
+| access_token | String | The OAuth2 access token |
+| expires_in | Int | The access token TTL in seconds  |
+| token_type | String | The type of the access token |
+| scope | String | The OAuth2 access token scopes |
+| refresh_token | String | An OAuth2 refresh token (if `offline_access` scope was requested) |
+
+### `/v2/oauth2/token` - Refresh Token Grant Request
+
+This request is used to exchange an OAuth2 refresh token for a new OAuth2 access token and refresh token.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/oauth2/token	` | POST | OAuth2 |
+
+#### Request Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **grant_type** | String | Always a string `refresh_token`	| n/a | Yes |
+| **client_id** | String | Your OAuth consumer key | n/a | Yes |
+| **refresh_token** | String | An OAuth2 refresh token | n/a | Yes |
+
+**Example:**
+
+```JSON
+{
+    "grant_type": "refresh_token",
+    "client_id": "...",
+    "refresh_token": "{refresh_token goes here}"
+}
+```
+
+#### Response
+
+- `200` Operation was successful
+- `401` Unauthorized, refresh token has expired
+
+| Response Field | Type | Description |
+| -------------- | ---- | ----------- |
+| access_token | String | The OAuth2 access token |
+| expires_in | Int | The access token TTL in seconds  |
+| token_type | String | The type of the access token |
+| scope | String | The OAuth2 access token scopes |
+| refresh_token | String | An OAuth2 refresh token |
+
+### `/v2/oauth2/exchange` - OAuth1 to OAuth2 Token Exchange
+
+This route is used to exchange an OAuth1 access token for an OAuth2 access token and refresh token. Clients must expect the OAuth1 token to be invalidated if the exchange is successful.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/oauth2/exchange` | POST | OAuth1 |
+
+#### Request Parameters
+
+None.
+
+#### Response
+
+- `200` Operation was successful
+- `400` Incorrect authorization type (requests must use OAuth1)
+- `401` Authentication failed
+
+| Response Field | Type | Description |
+| -------------- | ---- | ----------- |
+| access_token | String | The OAuth2 access token |
+| expires_in | Int | The access token TTL in seconds  |
+| token_type | String | The type of the access token |
+| scope | String | The OAuth2 access token scopes (always `basic write`) |
+| refresh_token | String | An OAuth2 refresh token |
 
 ## Common Response Elements
 
@@ -638,7 +804,7 @@ This method can be used to retrieve the publicly exposed likes from a blog.
 
 | URI | HTTP Method | Authentication |
 | --- | ----------- | -------------- |
-| `api.tumblr.com/v2/blog/{blog-identifier}/likes?api_key={key}` | GET | [API Key](https://www.tumblr.com/docs/en/api/v2#auth) |
+| `api.tumblr.com/v2/blog/{blog-identifier}/likes?api_key={key}` | GET | [API Key](#auth) |
 
 #### Request Parameters
 
