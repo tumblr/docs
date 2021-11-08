@@ -2071,6 +2071,11 @@ The response JSON object will contain:
 | **trail** | Array | Array of trail items, if the post being fetched is a reblog. |
 | **content** | Array | Array of the content blocks of the post itself. |
 | **layout** | Array | Array of the post's layout objects. |
+| **queued_state** | String | If the post's state is `queued`, this field will indicate whether it's actually a `scheduled` post. |
+| **scheduled_publish_time** | Integer | If the post's state is `queued`, this will provide the scheduled publishing timestamp. |
+| **publish_on** | String | If the `queued_state` is "scheduled", this is the timestamp of when the post is scheduled to publish, in ISO 8601 format. |
+
+Note about queued/scheduled posts: the `queued_state` field will only exist for a `state: queued` post, and will indicate either `queued` or `scheduled`. The `scheduled_publish_time` field will tell you when the post is currently scheduled for publishing, as a Unix epoch timestamp. These fields are read-only; to change post's state or scheduled publish time, please use the `state` and `publish_on` fields when editing the post.
 
 #### Errors and Error Subcodes
 
@@ -2088,7 +2093,7 @@ This route allows you to edit posts using the Neue Post Format. Note that you ca
 
 ### Request Parameters
 
-For editing a post, all of the request parameters from the NPF Post Creation route are expected (depending on if it's an original post or reblog), along with the Post's ID in the query path.
+For editing a post, all of the request parameters from the NPF Post Creation route are expected (depending on if it's an original post or reblog), along with the Post's ID in the query path. If you are editing a scheduled post, make sure to include its `publish_on` value.
 
 Note that the `exclude_trail_items` parameter will edit the reblog's current trail at the time of editing, not the trail that existed when the reblog was created. So if you had created a reblog and excluded trail items at creation, then are editing it to exclude trail items again, you are now editing that reblog's trail, not the parent post's trail. Basically: you can't "bring back" trail items without reblogging the parent post all over again.
 
