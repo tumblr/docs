@@ -12,6 +12,7 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
 - [Console](#console)
 - [API Overview](#api-overview)
     - [URI Structure](#uri-structure)
+    - [Request User Agent](#request-user-agent)
     - [Request Content Types](#request-content-types)
     - [Post Identifiers](#post-identifiers)
     - [Blog Identifiers](#blog-identifiers)
@@ -97,6 +98,10 @@ All Tumblr API requests start with `https://api.tumblr.com`.
 The next segment of the URI path depends on the type of request you want to make. For example, getting blog data or to make a post on a blog uses the `/v2/blog/{blog-identifier}/...` endpoint, so the full URL would be `https://api.tumblr.com/v2/blog/{blog-identifier}/...`
 
 See the different Methods sections below for complete details on the available routes.
+
+### Request User Agent
+
+The `User-Agent` header is required and every application is expected to use a consistent value across requests. Your application may be suspended if it uses a variety of values for the `User-Agent` header.
 
 ### Request Content Types
 
