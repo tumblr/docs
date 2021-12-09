@@ -370,6 +370,9 @@ This request is used to request permission from a user to gain access to their a
 | **response_type** | String | Always `code` | n/a | Yes |
 | **scope** | String | A space delimited list of scopes | n/a | Yes |
 | **state** | String | A unique value used to maintain state | n/a | Yes |
+| **redirect_uri** | String | A redirect URI | n/a | Maybe, see note below |
+
+A redirect URI must be supplied when multiple redirect URIs are registered.
 
 ### `/v2/oauth2/token` - Authorization Code Grant Request
 
