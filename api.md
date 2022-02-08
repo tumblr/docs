@@ -1699,10 +1699,12 @@ Retrieve the activity items for a specific blog, in reverse chronological order.
 
 #### Query Parameters
 
-| Parameter | Type | Description | Default | Required? |
-| --------- | ---- | ----------- | ------- | --------- |
-| **before** | Integer | Unix epoch timestamp that begins the page, defaults to request time. | Request time | No |
-| **types** | String[] | An array of one or more types to filter by, or none if you want all | None | No |
+| Parameter         | Type     | Description                                                          | Default      | Required? |
+|-------------------|----------|----------------------------------------------------------------------|--------------|-----------|
+| **before**        | Integer  | Unix epoch timestamp that begins the page, defaults to request time. | Request time | No        |
+| **types**         | String[] | An array of one or more types to filter by, or none if you want all  | None         | No        |
+| **rollups**       | Boolean  | Whether to "roll up" similar activity items into single items        | `true`       | No        |
+| **omit_post_ids** | String[] | An array of one or more of your own Post IDs to filter out           | None         | No        |
 
 Available "types" include:
 
