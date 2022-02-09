@@ -319,7 +319,7 @@ The API supports the [OAuth 2.0 Protocol](https://oauth.net/2/), accepting a bea
 Authorization: Bearer {access_token}
 ```
 
-API clients have access to [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1), [Client Credentials](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.4), and [Refresh Token](https://datatracker.ietf.org/doc/html/rfc6749#section-1.5) grants. Available scopes include `basic`, `write`, and `offline_access`. Note that you must specify a valid OAuth2 OAuth2 redirect URL for OAuth2 to be available to your application. You can find this field by editing [one of your applications](https://www.tumblr.com/oauth/apps).
+API clients have access to [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1), [Client Credentials](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.4), and [Refresh Token](https://datatracker.ietf.org/doc/html/rfc6749#section-1.5) grants. Available scopes include `basic`, `write`, and `offline_access`. Note that you must specify a valid OAuth2 redirect URL for OAuth2 to be available to your application. You can find this field by editing [one of your applications](https://www.tumblr.com/oauth/apps).
 
 ### The OAuth2 Authorization flow
 
@@ -333,7 +333,13 @@ Once a user decides to allow or disallow your application access to their accoun
 
 #### Step Three: Retrieve an access token
 
-Use your applications credentials and the `code` from the previous step to issue a request to [Tumblr's OAuth2 access token endpoint](#v2oauth2token---authorization-code-grant-request). A successful request will yield a response that contains the following object:
+Use your applications credentials and the `code` from the previous step to issue a request to [Tumblr's OAuth2 access token endpoint](#v2oauth2token---authorization-code-grant-request). For example, using the `curl` command line tool:
+
+```
+curl -F grant_type=authorization_code -F code={code} -F client_id={Your OAuth consumer key} -F client_secret={Your OAuth secret key} https://api.tumblr.com/v2/oauth2/token
+```
+
+A successful request will yield a response that contains the following object:
 
 ```json
 {
@@ -346,11 +352,29 @@ Use your applications credentials and the `code` from the previous step to issue
 }
 ```
 
+_Special tip: [jq](https://stedolan.github.io/jq/) is a handy tool for formatting JSON on the command line, you can pipe the output of `curl` through `jq` to easily format the API response, like so:_
+
+```
+curl -F ... https://api.tumblr.com/v2/oauth2/token | jq
+```
+
 You'll need to store this information somewhere so you can issue requests on behalf of the user, and so you can refresh the access token when it has expired.
 
-#### Step Four: Refresh an access token
+#### Step Four: Make your API requests
 
-Your application can use the `expires_in` property in the access token response to determine if the user's access token has expired. If it has, you can use [the refresh token to retrieve a new access token and refresh token](#v2oauth2token---refresh-token-grant-request).
+Using the `access_token`, you can now talk directly to the Tumblr API. For example, this `curl` request will retrieve the [user's account information](#userinfo--get-a-users-information):
+
+```
+curl -H 'Authorization: Bearer {access_token}' https://api.tumblr.com/v2/user/info
+```
+
+#### Step Five: Refresh an access token
+
+Your application can use the `expires_in` property in the access token response to determine if the user's access token has expired. If it has, you can use [the refresh token to retrieve a new access token and refresh token](#v2oauth2token---refresh-token-grant-request). For example, using `curl` again:
+
+```
+curl -F grant_type=refresh_token -F refresh_token={refresh_token} -F client_id={Your OAuth consumer key} -F client_secret={Your OAuth consumer secret} https://api.tumblr.com/v2/oauth2/token
+```
 
 ### `/oauth2/authorize` - Authorization Request
 
@@ -414,7 +438,7 @@ This request is used to exchange an OAuth2 refresh token for a new OAuth2 access
 
 | URI | HTTP Method | Authentication |
 | --- | ----------- | -------------- |
-| `api.tumblr.com/v2/oauth2/token	` | POST | OAuth2 |
+| `api.tumblr.com/v2/oauth2/token` | POST | OAuth2 |
 
 #### Request Parameters
 
@@ -422,6 +446,7 @@ This request is used to exchange an OAuth2 refresh token for a new OAuth2 access
 | --------- | ---- | ----------- | ------- | --------- |
 | **grant_type** | String | Always a string `refresh_token`	| n/a | Yes |
 | **client_id** | String | Your OAuth consumer key | n/a | Yes |
+| **client_secret** | String | Your OAuth consumer secret | n/a | Yes |
 | **refresh_token** | String | An OAuth2 refresh token | n/a | Yes |
 
 **Example:**
