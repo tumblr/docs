@@ -189,7 +189,7 @@ Note that these rate limits are based on the Tumblr servers' internal clocks and
 There are also overall limits to a few specific actions, including:
 
 - A blog can only follow 5,000 other blogs at a time.
-- A blog can only have 300 queued posts at a time.
+- A blog can only have 1,000 queued posts at a time.
 - You can only filter up to 1,000 tags at a time.
 
 ### Reporting Issues
@@ -616,25 +616,26 @@ This method returns general information about the blog, such as the title, numbe
 
 Specific fields inside of the `theme` object and what they mean:
 
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| `avatar_shape` | String | "circle" or "square", this is the shape of the mask over the user's avatar. |
-| `background_color` | String | The intended hex color used for the blog's background color. |
-| `body_font` | String | The font that the blog has selected as their "body" font. |
-| `header_bounds` | Mixed | If the blog's header should be cropped, this is a comma-separated list of top/right/bottom/left coordinates to use. |
-| `header_image` | String | The URL of the blog's original, full header image. Note that this may be a default Tumblr header image. |
-| `header_image_focused` | String | If the blog cropped/repositioned their header image, this will be that version, which should be preferred over the original. |
-| `header_image_poster` | String | The URL of a single-frame "poster" version of the blog's header image, if it's an animated image. Note that this may be an empty string if no poster could be made or is not needed. |
+| Field | Type | Description                                                                                                                                                                                                                        |
+| ----- | ---- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `avatar_shape` | String | "circle" or "square", this is the shape of the mask over the user's avatar.                                                                                                                                                        |
+| `background_color` | String | The intended hex color used for the blog's background color.                                                                                                                                                                       |
+| `body_font` | String | The font that the blog has selected as their "body" font.                                                                                                                                                                          |
+| `header_bounds` | Mixed | If the blog's header should be cropped, this is a comma-separated list of top/right/bottom/left coordinates to use.                                                                                                                |
+| `header_image` | String | The URL of the blog's original, full header image. Note that this may be a default Tumblr header image.                                                                                                                            |
+| `header_image_npf`     | Object  | [NPF image block format](https://www.tumblr.com/docs/npf#content-block-type-image) of the blog's header image. It will include one or more image sizes to choose from, in order from largest to smallest.                                                                                  |
+| `header_image_focused` | String | If the blog cropped/repositioned their header image, this will be that version, which should be preferred over the original.                                                                                                       |
+| `header_image_poster` | String | The URL of a single-frame "poster" version of the blog's header image, if it's an animated image. Note that this may be an empty string if no poster could be made or is not needed.                                               |
 | `header_image_scaled` | String | If the blog _only_ scaled their header image, this will be that scaled version. Note that this may be a default Tumblr header image in the case that they scaled _and_ repositioned it, in which case, use the `_focused` version. |
-| `header_stretch` | Boolean | Whether or not the blog's header is meant to be stretched to aspect-fill any given space where it's used. |
-| `link_color` | String | The intended hex color of any links in the blog's description. |
-| `show_avatar` | Boolean | Whether or not the blog's avatar should be displayed, even if it's given in the API payload. |
-| `show_description` | Boolean | Whether or not the blog's description should be displayed, even if it's given in the API payload. |
-| `show_header_image` | Boolean | Whether or not the blog's header image should be displayed, even if it's given in the API payload. |
-| `show_title` | Boolean | Whether or not the blog's title should be displayed, even if it's given in the API payload. |
-| `title_color` | String | The intended hex color of the blog's title. |
-| `title_font` | String | The intended font to use when displaying the blog's title. |
-| `title_font_weight` | String | The intended font weight to use when displaying the blog's title. |
+| `header_stretch` | Boolean | Whether or not the blog's header is meant to be stretched to aspect-fill any given space where it's used.                                                                                                                          |
+| `link_color` | String | The intended hex color of any links in the blog's description.                                                                                                                                                                     |
+| `show_avatar` | Boolean | Whether or not the blog's avatar should be displayed, even if it's given in the API payload.                                                                                                                                       |
+| `show_description` | Boolean | Whether or not the blog's description should be displayed, even if it's given in the API payload.                                                                                                                                  |
+| `show_header_image` | Boolean | Whether or not the blog's header image should be displayed, even if it's given in the API payload.                                                                                                                                 |
+| `show_title` | Boolean | Whether or not the blog's title should be displayed, even if it's given in the API payload.                                                                                                                                        |
+| `title_color` | String | The intended hex color of the blog's title.                                                                                                                                                                                        |
+| `title_font` | String | The intended font to use when displaying the blog's title.                                                                                                                                                                         |
+| `title_font_weight` | String | The intended font weight to use when displaying the blog's title.                                                                                                                                                                  |
 
 **Example**
 
