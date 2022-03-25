@@ -63,6 +63,7 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
     - [`/notes` - Get notes for a specific Post](#notes--get-notes-for-a-specific-post)
 - [User Methods](#user-methods)
     - [`/user/info` – Get a User's Information](#userinfo--get-a-users-information)
+    - [`/user/limits` – Get a User's Limits](#userlimits--get-a-users-limits)
     - [`/user/dashboard` – Retrieve a User's Dashboard](#userdashboard--retrieve-a-users-dashboard)
     - [`/user/likes` — Retrieve a User's Likes](#userlikes--retrieve-a-users-likes)
     - [`/user/following` – Retrieve the Blogs a User Is Following](#userfollowing--retrieve-the-blogs-a-user-is-following)
@@ -2288,33 +2289,73 @@ Use this method to retrieve the user's account information that matches the OAut
 
 ```JSON
 {
-   "meta": {
-      "status": 200,
-      "msg": "OK"
-   },
-   "response": {
-     "user": {
-       "following": 263,
-       "default_post_format": "html",
-       "name": "derekg",
-       "likes": 606,
-       "blogs": [
-          {
-           "name": "derekg",
-           "title": "Derek Gottfrid",
-           "url": "https://derekg.org/",
-           "tweet": "auto",
-           "primary": true,
-           "followers": 33004929,
-          },
-          {
-           "name": "ihatehipstrz",
-           "title": "I Hate Hipstrz",
-           ...
-          }
+    "meta": {
+        "status": 200,
+        "msg": "OK"
+    },
+    "response": {
+        "user": {
+            "following": 263,
+            "default_post_format": "html",
+            "name": "derekg",
+            "likes": 606,
+            "blogs": [
+            {
+                "name": "derekg",
+                "title": "Derek Gottfrid",
+                "url": "https://derekg.org/",
+                "tweet": "auto",
+                "primary": true,
+                "followers": 33004929,
+            },
+            {
+                "name": "ihatehipstrz",
+                "title": "I Hate Hipstrz",
+                ...
+            }
         ]
      }
   }
+}
+```
+
+### `/user/limits` – Get a User's Limits
+
+Use this method to retrieve information about the various limits for the current user.
+
+#### Method
+
+| URI | HTTP Method | Authentication |
+| --- | ----------- | -------------- |
+| `api.tumblr.com/v2/user/limits` | GET | [OAuth](#authentication) |
+
+#### Response
+
+**Example**
+
+```JSON
+{
+    "meta": {
+        "status": 200,
+        "msg": "OK"
+    },
+    "response": {
+        "user": {
+            "blogs": {
+               "description": "the number of secondary blogs you can create per day",
+               "limit": 10,
+               "remaining": 4,
+               "reset_at": 1670043600
+            },
+            "follows": {
+                "description": "the number of blogs you can follow per day",
+                "limit": 200,
+                "remaining": 199,
+                "reset_at": 1670043600
+            },
+            ...
+        }
+    }
 }
 ```
 
