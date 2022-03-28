@@ -1,6 +1,6 @@
-# Tumblr's New Web Platform
+# Tumblr's Web Platform
 
-Hello! In 2020, we're rolling out a new version of the Tumblr web app. It's fresh and fancy, built on React and other fun things. This documentation is a guide to how to develop on top of it - browser extensions and that sort of thing. All of the following documentation assumes you are using JavaScript in the console or in the context of a browser extension.
+Hello! In 2020, we've rolled out a new version of the Tumblr web app. It's built on React and other fun things. This documentation is a guide to how to develop on top of it - browser extensions and that sort of thing. All of the following documentation assumes you are using JavaScript in the console or in the context of a browser extension.
 
 This is fairly short at the moment, but it's a work in progress.
 
@@ -12,7 +12,7 @@ A good question! This rollout is not going to happen all at once - different pag
 
 ### `getCssMap`
 
-One major difference in our new version of the site is the way our stylesheets and class names are compiled. No longer are the class names engineers write in the source code the ones that end up in the actual version of the site. This makes DOM manipulation a tricky proposal, from an extension's point of view. This function is intended to bridge that gap.
+When compared to the previous version, one major difference in our current version of the site is the way our stylesheets and class names are compiled. No longer are the class names engineers write in the source code the ones that end up in the actual version of the site. This makes DOM manipulation a tricky proposal, from an extension's point of view. This function is intended to bridge that gap.
 
 In TypeScript terms, the function is typed like this:
 
