@@ -621,7 +621,7 @@ This method returns general information about the blog, such as the title, numbe
 | **timezone** | String | The blog's configured timezone, such as "US/Eastern". Only viewable by blog member. *Partial response field ONLY.*
 | **timezone_offset** | String | The blog's configured timezone as a GMT offset such as "GMT+0800". Only viewable by blog member. *Partial response field ONLY.*
 | **title** | String | The display title of the blog |
-| **total_posts** | Number | |
+| **total_posts** | Number | The total number of posts on the blog |
 | **updated** | Number | The time of the most recent post, in seconds since the epoch |
 | **url** | String | The url of the blog - this is usually the same as the [Blog Identifier](#blog-identifiers). *Use the blog identifier.*|
 | **uuid** | String | The unique identifier of the blog. See [Blog Unique Identifiers](#blog-unique-identifiers) |
