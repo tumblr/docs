@@ -611,7 +611,7 @@ This method returns general information about the blog, such as the title, numbe
 | **can_subscribe** | Boolean | |
 | **description** | String | You guessed it! The blog's description |
 | **is_blocked_from_primary** | Boolean | Indicates whether this blog has been blocked by the calling user's primary blog; returned only if there is an authenticated user making this call |
-| **is_nsfw** | Boolean | |
+| **is_nsfw** | Boolean | Indicates if the blog is [Not-Safe-For-Work](https://en.wikipedia.org/wiki/Not_safe_for_work) (18+)|
 | **likes** | Number | Number of likes for this user, returned only if this is the user's primary blog and sharing of likes is enabled |
 | **name** | String | The short blog name that appears before tumblr.com in a standard blog hostname |
 | **posts** | Number | The total number of posts to this blog |
@@ -623,11 +623,11 @@ This method returns general information about the blog, such as the title, numbe
 | **title** | String | The display title of the blog |
 | **total_posts** | Number | |
 | **updated** | Number | The time of the most recent post, in seconds since the epoch |
-| **url** | String | |
-| **uuid** | String | |
-| **is_optout_ads** | Boolean | |
+| **url** | String | The url of the blog - this is usually the same as the [Blog Identifier](#blog-identifiers). *Use the blog identifier.*|
+| **uuid** | String | The unique identifier of the blog. See [Blog Unique Identifiers](#blog-unique-identifiers) |
+| **is_optout_ads** | Boolean | Indicates if the blog has opted out of advertisments. |
 
-##### Theme 
+#### Theme 
 
 Specific fields inside of the `theme` object and what they mean:
 
@@ -664,27 +664,27 @@ Specific fields inside of the `theme` object and what they mean:
    },
    "response": {
       "blog": {
-        "ask": true,
-        "ask_anon": false,
-        "ask_page_title": "Ask me anything",
-        "asks_allow_media": true,
-        "avatar": [...],
-        "can_chat": false,
-        "can_subscribe": false,
-        "description": "Est. 2006",
-        "is_nsfw": false,
-        "name": "david",
-        "posts": 4960,
-        "share_likes": false,
-        "subscribed": false,
-        "theme": {...},
-        "title": "David's Log",
-        "total_posts": 4960,
-        "updated": 1591035760,
-        "url": "https://www.davidslog.com/",
-        "uuid": "t:cCQ0A8KpxS8of3Op9-6PJA",
-        "is_optout_ads": true
-    }
+         "ask": true,
+         "ask_anon": false,
+         "ask_page_title": "Ask me anything",
+         "asks_allow_media": true,
+         "avatar": [...],
+         "can_chat": false,
+         "can_subscribe": false,
+         "description": "Est. 2006",
+         "is_nsfw": false,
+         "name": "david",
+         "posts": 4960,
+         "share_likes": false,
+         "subscribed": false,
+         "theme": {...},
+         "title": "David's Log",
+         "total_posts": 4960,
+         "updated": 1591035760,
+         "url": "https://www.davidslog.com/",
+         "uuid": "t:cCQ0A8KpxS8of3Op9-6PJA",
+         "is_optout_ads": true
+      }
    }
 }
 ```
