@@ -601,19 +601,30 @@ This method returns general information about the blog, such as the title, numbe
 
 | Response Field | Type | Description |
 | -------------- | ---- | ----------- |
-| **title** | String | The display title of the blog |
-| **posts** | Number | The total number of posts to this blog |
-| **name** | String | The short blog name that appears before tumblr.com in a standard blog hostname |
-| **updated** | Number | The time of the most recent post, in seconds since the epoch |
-| **description** | String | You guessed it! The blog's description |
 | **ask** | Boolean | Indicates whether the blog allows questions |
 | **ask_anon** | Boolean | Indicates whether the blog allows anonymous questions; returned only if ask is true |
-| **likes** | Number | Number of likes for this user, returned only if this is the user's primary blog and sharing of likes is enabled |
-| **is_blocked_from_primary** | Boolean | Indicates whether this blog has been blocked by the calling user's primary blog; returned only if there is an authenticated user making this call |
+| **ask_page_title** | String | |
+| **asks_allow_media** | Boolean | |
 | **avatar** | Array | An array of avatar objects, each a different size, which should each have a width, height, and URL. |
+| **can_chat** | Boolean | |
+| **can_subscribe** | Boolean | |
+| **description** | String | You guessed it! The blog's description |
+| **is_blocked_from_primary** | Boolean | Indicates whether this blog has been blocked by the calling user's primary blog; returned only if there is an authenticated user making this call |
+| **is_nsfw** | Boolean | |
+| **likes** | Number | Number of likes for this user, returned only if this is the user's primary blog and sharing of likes is enabled |
+| **name** | String | The short blog name that appears before tumblr.com in a standard blog hostname |
+| **posts** | Number | The total number of posts to this blog |
+| **share_likes** | Boolean | |
+| **subscribed** | Boolean | |
 | **theme** | Object | The blog's general theme options, which may not be useful if the blog uses a custom theme. See next table. |
 | **timezone** | String | The blog's configured timezone, such as "US/Eastern". Only viewable by blog member. *Partial response field ONLY.*
 | **timezone_offset** | String | The blog's configured timezone as a GMT offset such as "GMT+0800". Only viewable by blog member. *Partial response field ONLY.*
+| **title** | String | The display title of the blog |
+| **total_posts** | Number | |
+| **updated** | Number | The time of the most recent post, in seconds since the epoch |
+| **url** | String | |
+| **uuid** | String | |
+| **is_optout_ads** | Boolean | |
 
 Specific fields inside of the `theme` object and what they mean:
 
@@ -650,18 +661,27 @@ Specific fields inside of the `theme` object and what they mean:
    },
    "response": {
       "blog": {
-         "title": "David's Log",
-         "posts": 3456,
-         "name": "david",
-         "url": "https:\/\/david.tumblr.com\/",
-         "updated": 1308953007,
-         "description": "<p><strong>Mr. Karp<\/strong> is tall and skinny, with
-            unflinching blue eyes a mop of brown hair.\r\n
-            He speaks incredibly fast and in complete paragraphs.</p>",
-         "ask": true,
-         "ask_anon": false,
-         "likes": 12345
-      }
+        "ask": true,
+        "ask_anon": false,
+        "ask_page_title": "Ask me anything",
+        "asks_allow_media": true,
+        "avatar": [...],
+        "can_chat": false,
+        "can_subscribe": false,
+        "description": "Est. 2006",
+        "is_nsfw": false,
+        "name": "david",
+        "posts": 4960,
+        "share_likes": false,
+        "subscribed": false,
+        "theme": {...},
+        "title": "David's Log",
+        "total_posts": 4960,
+        "updated": 1591035760,
+        "url": "https://www.davidslog.com/",
+        "uuid": "t:cCQ0A8KpxS8of3Op9-6PJA",
+        "is_optout_ads": true
+    }
    }
 }
 ```
