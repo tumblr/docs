@@ -37,6 +37,7 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
     - [Neue Post Format objects](#neue-post-format-objects)
 - [Blog Methods](#blog-methods)
     - [`/info` - Retrieve Blog Info](#info---retrieve-blog-info)
+        - [Theme](#theme)
     - [`/avatar` — Retrieve a Blog Avatar](#avatar--retrieve-a-blog-avatar)
     - [`/blocks` – Retrieve Blog's Blocks](#blocks--retrieve-blogs-blocks)
     - [`/blocks` – Block a Blog](#blocks--block-a-blog)
@@ -625,6 +626,8 @@ This method returns general information about the blog, such as the title, numbe
 | **url** | String | |
 | **uuid** | String | |
 | **is_optout_ads** | Boolean | |
+
+##### Theme 
 
 Specific fields inside of the `theme` object and what they mean:
 
