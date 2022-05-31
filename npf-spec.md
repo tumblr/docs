@@ -23,6 +23,7 @@
     - [Content Block Type: Link](#content-block-type-link)
     - [Content Block Type: Audio](#content-block-type-audio)
     - [Content Block Type: Video](#content-block-type-video)
+    - [Content Block Type: Paywall](#content-block-type-paywall)
     - [Future Content Block Types](#future-content-block-types)
 - [Layout Blocks](#layout-blocks)
     - [Layout Block Type: Rows](#layout-block-type-rows)
@@ -1048,6 +1049,244 @@ A YouTube video, which always has an `id` field in the `metadata` object:
 }
 ```
 
+### Content Block Type: Paywall
+
+A `paywall` content block represents a Post+ paywall, for posts that are paywalled (+Posts).
+
+The blog must be a Creator blog (Post+ enabled). Only original posts can be paywalled; however paywalled original posts can be reblogged, so they can still appear as a trail item (always the first, the root trail item).
+
+The paywall is effectively a truncation point that divides pre-paywall "teaser" blocks from post-paywall blocks restricted to Supporters. These blocks cannot mix together - that is, you cannot have a free block in the restricted section and vice versa.
+
+On creation, the client only needs to send up `type: paywall`, which represents the dividing line between the free vs paywalled content:
+
+```
+{
+    "content": [
+        {
+             "type": "text",
+             "text": "pre-paywall, free content here, we call this the post teaser"
+         },
+        {
+            "type": "paywall"
+        },
+        {
+            "type": "text",
+            "text": "post-paywall, paid content here, at least one of these blocks is required"
+        }
+    ]
+}
+```
+
+For consumption (ie. at display time), there are effectively three ways that a paywall block can be displayed, corresponding to the user's "paywall access", which appears on the upper `post.blog` level as the key `paywall_access`. The paywall access options are:
+- `non-member` - the user is not Supporting this blog yet
+  - paywall subtype is `cta`: a full paywall card for paywall access `non-member` with title, description, and buttons to go to checkout or learn more (which opens the full subscription info modal)
+- `creator` - the Creator looking at their own post
+  - paywall subtype is `divider` - a simple divider with label for Creators that separates the pre-paywall from post-paywall blocks
+- `disabled` - this was an originally paywalled post, but the Creator has deactivated their paywall
+  - paywall subtype is `disabled` - a simple card with title and text, will be the same for any deactivated +Post
+- `member` - If you are already a Supporter, you should not see this `paywall` block at all
+
+Property | Type | Required | Description
+-------- | ---- | -------- | -----------
+type | string | yes | This is `paywall` to denote the paywall block type.
+subtype | string | yes | Either `cta`, `divider`, or `disabled`, to denote the paywall block design.
+url | string | yes | The creator profile url this paywall should link to.
+is_visible | bool | no | Whether this paywall block is actually visible, default to true.
+
+For subtype `cta` and `disabled`, the additional fields are:
+
+Property | Type | Required | Description
+-------- | ---- | -------- | -----------
+title | string | yes | The CTA title that appears above the main text.
+text | string | yes | The main description text.
+
+For subtype `divider`, the additional fields are:
+
+Property | Type | Required | Description
+-------- | ---- | -------- | -----------
+text | string | yes | The label text.
+color | string | no | The hex color for the label and divider, e.g. #eeeeee.
+
+For example, the display json will look like:
+
+```json
+// The full paywall CTA - not sent are button copy (fixed, price can be pulled from subscription info below) and
+// background/accent color (already on blog)
+{
+    "type": "paywall",
+    "subtype": "cta",
+    "url": "https://tumblr.com/creator/acoolcreatorblog",
+    "title": "For Supporters",
+    "text": "Support %s by subscribing to their +Posts. As a supporter you'll get access to exclusive content and
+    perks." // The %s is a placeholder for the blogname
+}
+
+// The simple teaser divider for Creators looking at their own +Posts
+{
+    "type": "paywall",
+    "subtype": "divider",
+    "url": "https://tumblr.com/creator/acoolcreatorblog",
+    "text": "the teaser label",
+    "color": "#eeeee",
+    "is_visible": true
+}
+
+// The disabled type
+{
+    "type": "paywall",
+    "subtype": "disabled",
+    "url": "https://tumblr.com/creator/acoolcreatorblog",
+    "title": "Ahh shucks!",
+    "text": "%s is no longer offering Post+ subscriptions, and this content isn't available for you to see 🙈",
+    "is_visible": true
+}
+```
+
+The paywall block will always be inside the `content` blocks array. We use the `rows` layout to govern whether it is visible or not - if its index does not appear inside the `rows.blocks` indices, that means the paywall block is not visible.
+
+##### Post+ Subscription plan
+
+Tapping the "Learn more" in the paywall block subtype `cta` will open up a full modal with more info about the subscription plan. This subscription info lives in the upper `post.blog` level alongside the  `is_paywall_on` and `paywall_access` keys, not inside NPF `content`. It includes the fields:
+
+Property | Type | Always Present | Description
+-------- | ---- | -------------- | -----------
+description | string | yes | The subscription plan's description (shown in "About" tab).
+currency_code | string | yes | The 3-letter ISO code for the currency.
+monthly_price | string | yes | The monthly price in cents.
+yearly_price | string | yes | The yearly price in cents, only if this blog supports a yearly plan.
+member_perks | array of strings | yes | List of perks this blog offers.
+subscription_label | string | yes | The modal title (e.g. "Show your support")
+checkout_labels.monthly | string | yes | Translated label for the monthly checkout button. "%s" denotes placeholder for the price.
+checkout_labels.yearly | string | yes | Translated label for the yearly checkout button. "%s" denotes placeholder for the price.
+checkout_labels.support | string | yes | Translated label for the "Support from.." button before checkout. "%s" denotes placeholder for the price.
+is_valid | boolean | yes | Whether this is a valid subscription plan that Supporters can checkout from.
+
+Example json:
+```json
+{
+    "description": "Subscribe to my blog!",
+    "currency_code": "USD",
+    "monthly_price": "199",
+    "yearly_price": null, // not offering yearly plan
+    "member_perks": [ "Bonus Content", "creative prompts", "commissioned art" ],
+    "subscription_label": "Post+",
+    "checkout_labels": {
+        "monthly": "Subscribe for %s/month*",
+        "yearly": "%s/year*. 2 months FREE!",
+        "support": "Show your Support"
+    }
+  }
+```
+
+##### Post+: Reblogs
+
+Reblogs cannot be paywalled, but anyone - both Supporters and non-Supporters - can reblog a paywalled original post. Therefore it can enter the reblog trail, always as the first trail item.
+
+The paywalled trail item will appear identical to the way it appears as an original post. That is:
+- Supporters (`paywall_access: member`) will see the full post
+- Non-Supporters (`paywall_access: non-member`) will see the pre-paywall content and the paywall CTA button
+- Creators (`paywall_access: creator`) will see the full post, with the paywall teaser separation
+- Disabled +Posts (`paywall_access: disabled`) will see the pre-paywall content and the disabled paywall block
+
+Changes from a regular post:
+- extra keys:
+    - in the trail item's `post` object, `is_paywalled: true` and `paywall_access: creator|member|non-member|disabled`
+    - in the trail item's `blog` object, an extra `subscription_plan` that will be necessary for non-Supporters
+- `trail_item.content`: As with original posts, non-Supporters will receive only the pre-paywall blocks, while Supporters and Creators receive all the blocks, and the paywall block will always be there.
+- `trail_item.layout`: The `rows` layout will include the paywall block for non-Supporters and Creators, and exclude it for Supporters.
+
+Example trail item json for non-Supporters:
+
+```json
+ {
+   "trail": [
+      {
+        "post": {
+          "id": 12345,
+          "is_paywalled": true,
+          "paywall_access": "non-member"
+        },
+        "blog": {
+          "name": "blog-that-has-a-paywall",
+          "subscription_plan": {
+              "description": "Hey I'm Jeff....",
+              "currency_code": "USD",
+              "monthly_price": "199",
+              "yearly_price": "2000",
+              "member_perks": [
+                "bonus content"
+             ],
+              "subscription_label": "Post+",
+              "checkout_labels": {
+                "monthly": "Subscribe for %s/month*",
+                "yearly": "%s/year*. 2 months FREE!",
+                "support": "Show Your Support"
+              },
+              "is_valid": true
+          }
+        },
+        "content": [
+           {
+             "type": "text",
+             "text": "before the paywall"
+           },
+           {
+              "type": "paywall",
+              "subtype": "cta",
+              "title": "There's more to see...",
+              "text": "Get accessing to amazing content..."
+           }
+         ],
+         "layout": [
+           {
+             "type": "rows",
+             "display": [
+               {
+                 "blocks": [ 0 ]
+               },
+               {
+                 "blocks": [ 1 ]
+               }
+             ]
+           }
+         ]
+    }
+   ]
+   // ....
+ }
+ ```
+
+If the user's `paywall_access` is `member` or `creator`, we send an additional object `paywall_reblog_view` on the post level, which contains the NPF data that a `non-member` would see. This allows the client to render the paywall block in a post form or preview in a way that non-Supporters would be seeing it:
+
+```json
+"paywall_reblog_view": {
+          "content": [
+            {
+              "type": "text",
+              "text": "For Subscribers Only!",
+              "subtype": "heading1"
+            },
+            {
+              "type": "text",
+              "text": ""
+            },
+            {
+              "type": "text",
+              "text": "I bet you want to see what's below this line..."
+            },
+            {
+              "type": "paywall",
+              "url": "https://tumblr.com/creator/acoolblog",
+              "subtype": "cta",
+              "title": "For Supporters",
+              "text": "Support %s by subscribing to their +Posts. As a supporter you'll get access to exclusive content and perks.",
+              "is_visible": true
+            }
+          ],
+          "layout": []
+        }
+```
+
 ### Future Content Block Types
 
 New content block types will be added here as needed!
@@ -1635,9 +1874,13 @@ The maximum number of text blocks allowed in a single post is 1,000.
 
 #### Text Block Length
 
-The maximum character length (not byte length) of a text block is 4096 characters. This includes multibyte characters such as emoji.
+The maximum length of a text block is *4,096 characters*, specifically "Unicode Code Points" like `A`, `∮`, `⿓`, and `😻`.
 
-Note that because of the 1MB total post content size limit, it is not possible to have all 1,000 allowable text blocks have 4,096 characters each. This is intentional.
+#### Notes
+
+- Certain Emoji (such as `🏴󠁧󠁢󠁥󠁮󠁧󠁿` and `👨‍👨‍👧‍👦`) count as multiple "characters" because they are formed from a sequence of Code Points. Blocks containing these characters may therefore appear to have a shorter maximum length. For more information see https://wikipedia.org/wiki/Unicode.
+
+- Because the total post content size is limited to 1MB it is not possible to have all 1,000 allowable text blocks have 4,096 characters each. This is intentional.
 
 #### Text Block Subtypes
 
