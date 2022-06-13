@@ -178,7 +178,7 @@ These rate limits include:
 - 1,000 API calls per hour, per consumer key.
 - 5,000 API calls per day, per consumer key.
 - 250 new published posts (including reblogs) per day, per user.
-- 150 images uploaded per day, per user.
+- 250 images uploaded per day, per user.
 - 200 follows per day, per user.
 - 1,000 likes per day, per user.
 - 10 new blogs per day, per user.
