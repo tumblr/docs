@@ -340,6 +340,8 @@ Use your applications credentials and the `code` from the previous step to issue
 curl -F grant_type=authorization_code -F code={code} -F client_id={Your OAuth consumer key} -F client_secret={Your OAuth secret key} https://api.tumblr.com/v2/oauth2/token
 ```
 
+If you provided a redirect URI in the initial authorization request, you must provide the same redirect URI in the token request (as `redirect_uri`).
+
 A successful request will yield a response that contains the following object:
 
 ```json
@@ -411,12 +413,13 @@ This request allows you to exchange an authorization code for an access token.
 
 #### Request Parameters
 
-| Parameter | Type | Description | Default | Required? |
-| --------- | ---- | ----------- | ------- | --------- |
-| **grant_type** | String | Always `authorization_code` | n/a | Yes |
-| **code** | String | The code recieved at your OAuth2 redirect Url | n/a | Yes |
-| **client_id** | String | Your OAuth consumer key | n/a | Yes |
-| **client_secret** | String | Your OAuth consumer secret | n/a | Yes |
+| Parameter | Type | Description                                                      | Default | Required? |
+| --------- | ---- |------------------------------------------------------------------| ------- |-----------|
+| **grant_type** | String | Always `authorization_code`                                      | n/a | Yes       |
+| **code** | String | The code recieved at your OAuth2 redirect Url                    | n/a | Yes       |
+| **client_id** | String | Your OAuth consumer key                                          | n/a | Yes       |
+| **client_secret** | String | Your OAuth consumer secret                                       | n/a | Yes       |
+| **redirect_uri** | String | A redirect URI (if it was included in the authorization request) | n/a | No        |
 
 #### Response
 
