@@ -587,36 +587,86 @@ This method returns general information about the blog, such as the title, numbe
 
 #### Method
 
-| URI | HTTP Method | Authentication |
-| --- | ----------- | -------------- |
-| `api.tumblr.com/v2/blog/{blog-identifier}/info?api_key={key}` | GET | [API Key](#authentication) |
+| URI                                                           | HTTP Method | Authentication             |
+|---------------------------------------------------------------|-------------|----------------------------|
+| `api.tumblr.com/v2/blog/{blog-identifier}/info?api_key={key}` | GET         | [API Key](#authentication) |
 
 #### Request Parameters
 
-| Parameter | Type | Description | Default | Required? |
-| --------- | ---- | ----------- | ------- | --------- |
-| **blog-identifier** | String | Any blog identifier See the [Blog Identifiers](#blog-identifiers) for more details. | N/A | Yes |
-| **api_key** | String | Your OAuth Consumer Key See [Authentication](#authentication) for more details. | N/A | Yes |
+| Parameter           | Type   | Description                                                                         | Default | Required? |
+|---------------------|--------|-------------------------------------------------------------------------------------|---------|-----------|
+| **blog-identifier** | String | Any blog identifier See the [Blog Identifiers](#blog-identifiers) for more details. | N/A     | Yes       |
+| **api_key**         | String | Your OAuth Consumer Key See [Authentication](#authentication) for more details.     | N/A     | Yes       |
+| **fields**          | Object | See next section: "Partial Responses".                                              | N/A     | No        |
+
+#### Partial Responses
+
+Note that `blog` objects via the Tumblr API support "partial responses", which allows the request to specify which fields are returned any time a `blog` object is present by using the `fields` query parameter.
+
+For example, if you would like to always only see the `name` and `updated` fields in `blog` objects:
+
+```
+https://api.tumblr.com/v2/blog/david/info?fields[blogs]=name,updated
+```
+
+That will return only the `name` and `updated` fields in the `blog` object. You can use this in _any_ API request that includes blog objects, not just this blog info endpoint. Some fields are also "optional", and are preceded in the list by a `?` (encoded to `%3F`).
+
+Those optional fields are _only available upon request_, such as:
+
+| Response Field                  | Type    | Description                                                                                      |
+|---------------------------------|---------|--------------------------------------------------------------------------------------------------|
+| **is_following_you**            | Boolean | Whether or not the blog is following your primary blog                                           |
+| **duration_blog_following_you** | Integer | How long (in seconds) that blog has been following your primary blog (`-1` if they aren't)       |
+| **duration_following_blog**     | Integer | How long (in seconds) you've been following that blog (`-1` if you aren't)                       |
+| **timezone**                    | String  | The blog's configured timezone, such as "US/Eastern". Only viewable by blog member.              |
+| **timezone_offset**             | String  | The blog's configured timezone as a GMT offset such as "GMT+0800". Only viewable by blog member. |
+
+To access these, specify them in the `fields[blogs]` query parameter list, like so:
+
+```
+https://api.tumblr.com/v2/blog/david/info?fields[blogs]=name,updated,%3Fis_following_you,%3Fduration_following_blog
+```
+
+Which will return a response like:
+
+```json
+{
+    "meta": {
+        "status": 200,
+        "msg": "OK"
+    },
+    "response": {
+        "blog": {
+            "name": "david",
+            "updated": 1591035760,
+            "is_following_you": false,
+            "duration_following_blog": 123456
+        }
+    }
+}
+```
+
+Omitting the `fields` query parameter will return the default set of fields below.
 
 #### Response
 
-*Note: Field ordering below may differ from actual response.*
+*Note: Field ordering below may differ from actual response.* Also, any fields present that aren't included here are not officially supported for third-party use.
 
-| Response Field | Type | Description |
-| -------------- | ---- | ----------- |
-| **title** | String | The display title of the blog |
-| **posts** | Number | The total number of posts to this blog |
-| **name** | String | The short blog name that appears before tumblr.com in a standard blog hostname |
-| **updated** | Number | The time of the most recent post, in seconds since the epoch |
-| **description** | String | You guessed it! The blog's description |
-| **ask** | Boolean | Indicates whether the blog allows questions |
-| **ask_anon** | Boolean | Indicates whether the blog allows anonymous questions; returned only if ask is true |
-| **likes** | Number | Number of likes for this user, returned only if this is the user's primary blog and sharing of likes is enabled |
+| Response Field              | Type    | Description                                                                                                                                       |
+|-----------------------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| **title**                   | String  | The display title of the blog                                                                                                                     |
+| **posts**                   | Number  | The total number of posts to this blog                                                                                                            |
+| **name**                    | String  | The short blog name that appears before tumblr.com in a standard blog hostname                                                                    |
+| **updated**                 | Number  | The time of the most recent post, in seconds since the epoch                                                                                      |
+| **description**             | String  | You guessed it! The blog's description                                                                                                            |
+| **ask**                     | Boolean | Indicates whether the blog allows questions                                                                                                       |
+| **ask_anon**                | Boolean | Indicates whether the blog allows anonymous questions; returned only if ask is true                                                               |
+| **followed**                | Boolean | Whether you're following the blog, returned only if this request has an authenticated user                                                        |
+| **likes**                   | Number  | Number of likes for this user, returned only if this is the user's primary blog and sharing of likes is enabled                                   |
 | **is_blocked_from_primary** | Boolean | Indicates whether this blog has been blocked by the calling user's primary blog; returned only if there is an authenticated user making this call |
-| **avatar** | Array | An array of avatar objects, each a different size, which should each have a width, height, and URL. |
-| **theme** | Object | The blog's general theme options, which may not be useful if the blog uses a custom theme. See next table. |
-| **timezone** | String | The blog's configured timezone, such as "US/Eastern". Only viewable by blog member. *Partial response field ONLY.*
-| **timezone_offset** | String | The blog's configured timezone as a GMT offset such as "GMT+0800". Only viewable by blog member. *Partial response field ONLY.*
+| **avatar**                  | Array   | An array of avatar objects, each a different size, which should each have a width, height, and URL.                                               |
+| **url**                     | String  | The blog's canonical URL                                                                                                                          |
+| **theme**                   | Object  | The blog's general theme options, which may not be useful if the blog uses a custom theme. See next table.                                        |
 
 Specific fields inside of the `theme` object and what they mean:
 
