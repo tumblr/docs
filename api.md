@@ -1981,19 +1981,20 @@ If omitted, the state parameter on a new post defaults to `"published"`.
 
 ### Request Parameters
 
-| Parameter | Type | Description | Default | Required? |
-| --------- | ---- | ----------- | ------- | --------- |
-| **content** | Array | An array of [NPF content blocks](npf-spec.md) to be used to make the post; in a reblog, this is any content you want to add. | `[]` | Yes, for new posts |
-| **layout** | Array | An array of [NPF layout objects](npf-spec.md) to be used to lay out the post content. | `[]` | No |
-| **state** | String | The initial [state of the new post](#note-about-post-states), such as "published" or "queued". | `"published"` | No |
-| **publish_on** | String | The exact _future_ date and time (ISO 8601 format) to publish the post, if desired. This parameter will be ignored unless the `state` parameter is `"queue"`. | Now | No |
-| **date** | String | The exact date and time (ISO 8601 format) in the past to _backdate_ the post, if desired. This backdating does not apply to when the post shows up in the Dashboard. | Now | No |
-| **tags** | String | A comma-separated list of tags to associate with the post. | None | No |
-| **source_url** | String | A source attribution for the post content. | None | No |
-| **send_to_twitter** | Boolean | Whether or not to share this via any connected Twitter account on post publish. Defaults to the blog's global setting. | `false` | No |
-| **send_to_facebook** | Boolean | Whether or not to share this via any connected Facebook account on post publish. Defaults to the blog's global setting. | `false` | No |
-| **is_private** | Boolean | Whether this should be a private answer, if this is an answer. | `false` | No |
-| **slug** | String | A custom URL slug to use in the post's permalink URL | Automatically generated based on the post's content | No |
+| Parameter                  | Type    | Description                                                                                                                                                          | Default                                             | Required?          |
+|----------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|--------------------|
+| **content**                | Array   | An array of [NPF content blocks](npf-spec.md) to be used to make the post; in a reblog, this is any content you want to add.                                         | `[]`                                                | Yes, for new posts |
+| **layout**                 | Array   | An array of [NPF layout objects](npf-spec.md) to be used to lay out the post content.                                                                                | `[]`                                                | No                 |
+| **state**                  | String  | The initial [state of the new post](#note-about-post-states), such as "published" or "queued".                                                                       | `"published"`                                       | No                 |
+| **publish_on**             | String  | The exact _future_ date and time (ISO 8601 format) to publish the post, if desired. This parameter will be ignored unless the `state` parameter is `"queue"`.        | Now                                                 | No                 |
+| **date**                   | String  | The exact date and time (ISO 8601 format) in the past to _backdate_ the post, if desired. This backdating does not apply to when the post shows up in the Dashboard. | Now                                                 | No                 |
+| **tags**                   | String  | A comma-separated list of tags to associate with the post.                                                                                                           | None                                                | No                 |
+| **source_url**             | String  | A source attribution for the post content.                                                                                                                           | None                                                | No                 |
+| **send_to_twitter**        | Boolean | Whether or not to share this via any connected Twitter account on post publish. Defaults to the blog's global setting.                                               | `false`                                             | No                 |
+| **send_to_facebook**       | Boolean | Whether or not to share this via any connected Facebook account on post publish. Defaults to the blog's global setting.                                              | `false`                                             | No                 |
+| **is_private**             | Boolean | Whether this should be a private answer, if this is an answer.                                                                                                       | `false`                                             | No                 |
+| **slug**                   | String  | A custom URL slug to use in the post's permalink URL                                                                                                                 | Automatically generated based on the post's content | No                 |
+| **interactability_reblog** | String  | Who can interact with this when reblogging; `'everyone'` or `'noone'`                                                                                                | `'everyone'`                                        | No                 |
 
 **If the post being created is a reblog, all of the above parameters are expected, along with:**
 
@@ -2089,7 +2090,7 @@ The error codes here are the HTTP statuses that'll be returned in error states, 
 
 - `400 Bad Request` when the request has not provided the required data.
     - `400.8001` when an NPF JSON parameter is invalid or a bad format.
-    - `400.8002` when the reblog parent post and/or blog is invalid or cannot be found.
+    - `400.8002` when the reblog parent post and/or blog is invalid or cannot be found or cannot be interacted with.
     - `400.8005` when the uploaded media is an invalid format we cannot accept.
     - `400.8016` when there is something invalid about the format of the answer content or layout.
 - `401 Unauthorized` when the requester is an unauthorized client.
@@ -2149,21 +2150,22 @@ This returns a `200 OK` on successful post fetching, or an error code.
 
 The response JSON object will contain:
 
-| Response Field | Type | Description |
-| -------------- | ---- | ----------- |
-| **object_type** | String | The timeline object type, always `post`. |
-| **type** | String | The post type. If formatting as NPF, the `type` will be `blocks`; if formatting as legacy, the `type` will be one of the original legacy types (`text`, `photo`, `quote`, `chat`, `link`, `video`, `audio`).
-| **id** | String | The post ID, intentionally a string instead of an integer, for 32bit device compatibility. |
-| **tumblelog_uuid** | String | The posting blog's unique identifier. |
-| **parent_post_id** | String | The parent post ID, if the post being fetched is a reblog. |
-| **parent_tumblelog_uuid** | String | The parent posting blog's UUID, if the post being fetched is a reblog. |
-| **reblog_key** | String | The reblog key needed as an additional authentication token. |
-| **trail** | Array | Array of trail items, if the post being fetched is a reblog. |
-| **content** | Array | Array of the content blocks of the post itself. |
-| **layout** | Array | Array of the post's layout objects. |
-| **queued_state** | String | If the post's state is `queued`, this field will indicate whether it's actually a `scheduled` post. |
-| **scheduled_publish_time** | Integer | If the post's state is `queued`, this will provide the scheduled publishing timestamp. |
-| **publish_on** | String | If the `queued_state` is "scheduled", this is the timestamp of when the post is scheduled to publish, in ISO 8601 format. |
+| Response Field             | Type    | Description                                                                                                                                                                                                  |
+|----------------------------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **object_type**            | String  | The timeline object type, always `post`.                                                                                                                                                                     |
+| **type**                   | String  | The post type. If formatting as NPF, the `type` will be `blocks`; if formatting as legacy, the `type` will be one of the original legacy types (`text`, `photo`, `quote`, `chat`, `link`, `video`, `audio`). |
+| **id**                     | String  | The post ID, intentionally a string instead of an integer, for 32bit device compatibility.                                                                                                                   |
+| **tumblelog_uuid**         | String  | The posting blog's unique identifier.                                                                                                                                                                        |
+| **parent_post_id**         | String  | The parent post ID, if the post being fetched is a reblog.                                                                                                                                                   |
+| **parent_tumblelog_uuid**  | String  | The parent posting blog's UUID, if the post being fetched is a reblog.                                                                                                                                       |
+| **reblog_key**             | String  | The reblog key needed as an additional authentication token.                                                                                                                                                 |
+| **trail**                  | Array   | Array of trail items, if the post being fetched is a reblog.                                                                                                                                                 |
+| **content**                | Array   | Array of the content blocks of the post itself.                                                                                                                                                              |
+| **layout**                 | Array   | Array of the post's layout objects.                                                                                                                                                                          |
+| **queued_state**           | String  | If the post's state is `queued`, this field will indicate whether it's actually a `scheduled` post.                                                                                                          |
+| **scheduled_publish_time** | Integer | If the post's state is `queued`, this will provide the scheduled publishing timestamp.                                                                                                                       |
+| **publish_on**             | String  | If the `queued_state` is "scheduled", this is the timestamp of when the post is scheduled to publish, in ISO 8601 format.                                                                                    |
+| **interactability_reblog** | String  | Who can interact with this when reblogging; `'everyone'` or `'noone'`                                                                                                                                        |
 
 Note about queued/scheduled posts: the `queued_state` field will only exist for a `state: queued` post, and will indicate either `queued` or `scheduled`. The `scheduled_publish_time` field will tell you when the post is currently scheduled for publishing, as a Unix epoch timestamp. These fields are read-only; to change post's state or scheduled publish time, please use the `state` and `publish_on` fields when editing the post.
 
