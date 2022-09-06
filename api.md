@@ -1991,7 +1991,6 @@ If omitted, the state parameter on a new post defaults to `"published"`.
 | **tags**                   | String  | A comma-separated list of tags to associate with the post.                                                                                                           | None                                                | No                 |
 | **source_url**             | String  | A source attribution for the post content.                                                                                                                           | None                                                | No                 |
 | **send_to_twitter**        | Boolean | Whether or not to share this via any connected Twitter account on post publish. Defaults to the blog's global setting.                                               | `false`                                             | No                 |
-| **send_to_facebook**       | Boolean | Whether or not to share this via any connected Facebook account on post publish. Defaults to the blog's global setting.                                              | `false`                                             | No                 |
 | **is_private**             | Boolean | Whether this should be a private answer, if this is an answer.                                                                                                       | `false`                                             | No                 |
 | **slug**                   | String  | A custom URL slug to use in the post's permalink URL                                                                                                                 | Automatically generated based on the post's content | No                 |
 | **interactability_reblog** | String  | Who can interact with this when reblogging; `'everyone'` or `'noone'`                                                                                                | `'everyone'`                                        | No                 |
@@ -2337,7 +2336,6 @@ Use this method to retrieve the user's account information that matches the OAut
 | **blogs.primary** | Boolean | indicates if this is the user's primary blog |
 | **blogs.followers** | Number | total count of followers for this blog |
 | **blogs.tweet** | String | indicate if posts are tweeted auto, `Y`, `N` |
-| **blogs.facebook** | String | indicate if posts are sent to facebook `Y`, `N` |
 | **blogs.type** | String | indicates whether a blog is `public` or `private` |
 
 **Example**
