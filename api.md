@@ -119,18 +119,31 @@ Please note that Tumblr's Post IDs are 64-bit integers. Some languages, like Jav
 
 ### Blog Identifiers
 
+Each blog has a few different unique identifiers that can be used to reference that specific blog in the API payload. They are interchangeable and can be used in any place that `{blog-identifier}` appears in these API docs. The three types of blog identifiers are:
+
+- **Blog name**: The name of the blog that appears in the URL. Examples:
+  - `staff` for `https://staff.tumblr.com/`
+  - `changes` for `https://www.tumblr.com/changes` or `https://www.tumblr.com/@changes`
+- [**Hostname**](#blog-unique-hostnames): The hostname that's used to access the blog, excluding `www.tumblr.com`. Examples:
+  - `staff.tumblr.com` for `https://staff.tumblr.com/`
+  - `changes.tumblr.com` for `https://www.tumblr.com/changes` (*not* `www.tumblr.com`)
+  - `www.davidslog.com` for `https://www.davidslog.com/`
+- [**Universally unique identifier**](#blog-unique-identifiers): The UUID of the blog [retrieved from the API](#info---retrieve-blog-info). Examples:
+  - `t:0aY0xL2Fi1OFJg4YxpmegQ` for `staff`, `staff.tumblr.com`, and even `t:0aY0xL2Fi1OFJg4YxpmegQ`
+  - `t:WX5xItRbCiJH_GJDsIdhAQ` for `changes`, `changes.tumblr.com`, and even `t:WX5xItRbCiJH_GJDsIdhAQ`
+
+#### Blog Unique Hostnames
+
 Each blog has a unique hostname which can be used as its **identifier**. The hostname can be **standard** or **custom**.
 
 - **Standard hostname**: the blog short name + `.tumblr.com`. Example: `greentype.tumblr.com`
-- **Custom hostname**: these can be anything at all, as determined by a [DNS CNAME entry](https://tumblr.zendesk.com/hc/en-us/articles/231256548-Custom-domains). Example: `www.davidslog.com`
-
-You'll need the blog hostname to use as its identifier anytime you work with a blog. When you see the placeholder `{blog-identifier}` in these API docs, substitute the blog's standard or custom hostname.
+- **Custom hostname**: these can be anything at all, as determined by a [DNS CNAME entry](https://help.tumblr.com/hc/en-us/articles/231256548-Custom-domains). Example: `www.davidslog.com`
 
 #### Blog Unique Identifiers
 
-Each blog also has a unique identifier that you can retrieve from any API response that includes a blog, in the `uuid` field (example: `t:DvRFDGL05g8KB0gwiBJv1A`). The `{blog-identifier}` placeholder can also be replaced by this unique identifier.
+Each blog also has a unique identifier that you can retrieve from any API response that includes a blog, in the `uuid` field (example: `t:0aY0xL2Fi1OFJg4YxpmegQ`). The `{blog-identifier}` placeholder can also be replaced by this unique identifier.
 
-The benefits of using a unique identifier instead of a hostname are that the unique identifier will not change if the blog name or custom domain changes. It can be used as a stable, persistent identifier for a blog.
+The benefits of using a unique identifier instead of a blog name or hostname are that the unique identifier will not change if the blog name or custom domain changes. It can be used as a stable, persistent identifier for a blog.
 
 However, note that under exceptional circumstances, a unique identifier can change. Your own blog's unique identifier will only be changed with your knowing.
 
@@ -205,7 +218,7 @@ These docs include some working examples. Please click them to your heart's cont
 
 | Notation | Meaning | Example |
 | -------- | ------- | ------- |
-| **Curly brackets { }** | Required item | `api.tumblr.com/v2/blog/{blog-identifier}/posts` (the blog identifier is required) |
+| **Curly brackets { }** | Required item | `api.tumblr.com/v2/blog/{blog-identifier}/posts` (the [blog identifier](#blog-identifiers) is required) |
 | **Square brackets [ ]** | Optional item | `api.tumblr.com/v2/blog/{blog-identifier}/posts[/type]` (specifying the type is optional) |
 
 ## Official Tumblr API Client Libraries
@@ -591,12 +604,17 @@ This method returns general information about the blog, such as the title, numbe
 |---------------------------------------------------------------|-------------|----------------------------|
 | `api.tumblr.com/v2/blog/{blog-identifier}/info?api_key={key}` | GET         | [API Key](#authentication) |
 
-#### Request Parameters
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+
+#### Query Parameters
 
 | Parameter           | Type   | Description                                                                         | Default | Required? |
 |---------------------|--------|-------------------------------------------------------------------------------------|---------|-----------|
-| **blog-identifier** | String | Any blog identifier See the [Blog Identifiers](#blog-identifiers) for more details. | N/A     | Yes       |
-| **api_key**         | String | Your OAuth Consumer Key See [Authentication](#authentication) for more details.     | N/A     | Yes       |
+| **api_key**         | String | Your OAuth Consumer Key. See [Authentication](#authentication) for more details.    | N/A     | Yes       |
 | **fields**          | Object | See next section: "Partial Responses".                                              | N/A     | No        |
 
 #### Partial Responses
@@ -734,11 +752,11 @@ You can get a blog's avatar in 9 different sizes. The default size is 64x64.
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/avatar[/size]` | GET | None |
 
-#### Request Parameters
+#### Request Path Parameters
 
 | Parameter | Type | Description | Default | Required? |
 | --------- | ---- | ----------- | ------- | --------- |
-| **blog-identifier** | String | Any blog identifier See the [Blog Identifiers](#blog-identifiers) for more details. | N/A | Yes |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
 | **size** | Number | The size of the avatar (square, one value for both length and width). Must be one of the values: 16, 24, 30, 40, 48, 64, 96, 128, 512 | 64 | No |
 
 #### Response
@@ -761,7 +779,13 @@ Note that this endpoint is rate limited to 60 requests per minute.
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/blocks` | GET | [OAuth](#authentication) |
 
-#### Request Parameters
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+
+#### Query Parameters
 
 | Parameter | Type | Description | Default | Required? |
 | --------- | ---- | ----------- | ------- | --------- |
@@ -826,6 +850,12 @@ Note that this endpoint is rate limited to 60 requests per minute.
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/blocks` | POST | [OAuth](#authentication) |
 
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+
 #### Request Parameters
 
 | Parameter | Type | Description | Default | Required? |
@@ -847,6 +877,12 @@ Note that this endpoint is rate limited to 60 requests per minute.
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/blocks/bulk` | POST | [OAuth](#authentication) |
 
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+
 #### Request Parameters
 
 | Parameter | Type | Description | Default | Required? |
@@ -867,6 +903,12 @@ Note that this endpoint is rate limited to 60 requests per minute.
 | URI | HTTP Method | Authentication |
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/blocks` | DELETE | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
 
 #### Request Parameters
 
@@ -894,7 +936,13 @@ This method can be used to retrieve the publicly exposed likes from a blog.
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/likes?api_key={key}` | GET | [API Key](#auth) |
 
-#### Request Parameters
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+
+#### Query Parameters
 
 | Parameter | Type | Description | Default | Required? |
 | --------- | ---- | ----------- | ------- | --------- |
@@ -926,7 +974,13 @@ This method can be used to retrieve the publicly exposed list of blogs that a bl
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/following` | GET | [OAuth](#authentication) |
 
-#### Request Parameters
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+
+#### Query Parameters
 
 | Parameter | Type | Description | Default | Required? |
 | --------- | ---- | ----------- | ------- | --------- |
@@ -948,11 +1002,16 @@ This method can be used to retrieve the publicly exposed list of blogs that a bl
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/followers` | GET | [OAuth](#authentication) |
 
-#### Request Parameters
+#### Request Path Parameters
 
 | Parameter | Type | Description | Default | Required? |
 | --------- | ---- | ----------- | ------- | --------- |
-| **blog-identifier** | String | Any blog identifier See the Overview for more details. | N/A | Yes |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+
+#### Query Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
 | **limit** | Number | The number of results to return: 1–20, inclusive | 20 | No |
 | **offset** | Number | Result to start at | 0 (first follower) | No |
 
@@ -1008,7 +1067,13 @@ This method can be used to check if one of your blogs is followed by another blo
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/followed_by` | GET | [OAuth](#authentication) |
 
-#### Request Parameters
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+
+#### Query Parameters
 
 | Parameter | Type | Description | Required? |
 | --------- | ---- | ----------- | --------- |
@@ -1040,11 +1105,16 @@ GET https://api.tumblr.com/v2/blog/YOUR-BLOG.tumblr.com/followed_by?query=staff
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/posts[/type]?api_key={key}&[optional-params=]` | GET | [API Key](#authentication) |
 
-#### Request Parameters
+#### Request Path Parameters
 
 | Parameter | Type | Description | Default | Required? |
 | --------- | ---- | ----------- | ------- | --------- |
-| **blog-identifier** | String | Any blog identifier See the Overview for more details. | N/A | Yes |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+
+#### Query Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
 | **api_key** | String | Your OAuth Consumer Key See Authentication for more details. | N/A | Yes |
 | **type** | String | The type of post to return. Specify one of the following: text, quote, link, answer, video, audio, photo, chat | None – return all types | No |
 | **id** | Number | A specific post ID. Returns the single post specified or (if not found) a 404 error. | None | No |
@@ -1681,7 +1751,13 @@ Gives you a list of the currently queued posts for the specified blog.
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/posts/queue` | GET | [OAuth](#authentication) |
 
-#### Request Parameters
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+
+#### Query Parameters
 
 | Parameter | Type | Description | Default | Required? |
 | --------- | ---- | ----------- | ------- | --------- |
@@ -1698,6 +1774,12 @@ This allows you to reorder a post within the queue, moving it after an existing 
 | URI | HTTP Method | Authentication |
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/posts/queue/reorder` | POST | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
 
 #### Request Body Parameters
 
@@ -1716,6 +1798,12 @@ This randomly shuffles the queue for the specified blog.
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/posts/queue/shuffle` | POST | [OAuth](#authentication) |
 
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+
 ### `/posts/draft` — Retrieve Draft Posts
 
 #### Method
@@ -1723,6 +1811,12 @@ This randomly shuffles the queue for the specified blog.
 | URI | HTTP Method | Authentication |
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/posts/draft` | GET | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
 
 #### Request Parameters
 
@@ -1738,6 +1832,12 @@ This randomly shuffles the queue for the specified blog.
 | URI | HTTP Method | Authentication |
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/posts/submission` | GET | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
 
 #### Request Parameters
 
@@ -1776,6 +1876,12 @@ Retrieve the activity items for a specific blog, in reverse chronological order.
 | URI | HTTP Method | Authentication |
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/notifications` | GET | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
 
 #### Query Parameters
 
@@ -1834,6 +1940,12 @@ These legacy posting flows are still available, but we encourage you to use the 
 | URI | HTTP Method | Authentication |
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/post` | POST | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
 
 #### Request Parameters
 
@@ -1922,9 +2034,15 @@ Returns `201: Created` or an error code.
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/post/edit` | POST | [OAuth](#authentication) |
 
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+
 #### Request Parameters
 
-These parameters are in addition to the common parameters listed under `/post`.
+These parameters are in addition to the common parameters listed under [`/post`](#post--create-a-new-blog-post-legacy).
 
 | Parameter | Type | Description | Default | Required? |
 | --------- | ---- | ----------- | ------- | --------- |
@@ -1941,6 +2059,12 @@ Returns `200: OK` (successfully edited) or an error code.
 | URI | HTTP Method | Authentication |
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/post/reblog` | POST | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
 
 #### Request Parameters
 
@@ -1978,6 +2102,12 @@ If omitted, the state parameter on a new post defaults to `"published"`.
 | URI | HTTP Method | Authentication |
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/posts` | POST | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
 
 ### Request Parameters
 
@@ -2137,6 +2267,13 @@ The intention of this route is to fetch a post for editing in either the NPF or 
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/posts/{post-id}` | GET | [OAuth](#authentication) |
 
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+| **post-id** | String | Post ID. See the [Post Identifiers](#post-identifiers) section for more details. | N/A | Yes |
+
 #### Request Parameters
 
 | Parameter | Type | Description | Default | Required? |
@@ -2182,6 +2319,13 @@ This route allows you to edit posts using the Neue Post Format. Note that you ca
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/posts/{post-id}` | PUT | [OAuth](#authentication) |
 
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+| **post-id** | String | Post ID. See the [Post Identifiers](#post-identifiers) section for more details. | N/A | Yes |
+
 ### Request Parameters
 
 For editing a post, all of the request parameters from the NPF Post Creation route are expected (depending on if it's an original post or reblog), along with the Post's ID in the query path. If you are editing a scheduled post, make sure to include its `publish_on` value.
@@ -2218,6 +2362,12 @@ See the notes from the NPF Post creation route for info about this.
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/post/delete` | POST | [OAuth](#authentication) |
 
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
+
 #### Request Parameters
 
 | Parameter | Type | Description | Default | Required? |
@@ -2235,6 +2385,12 @@ Returns `200: OK` (successfully deleted) or an error code.
 | URI | HTTP Method | Authentication |
 | --- | ----------- | -------------- |
 | `api.tumblr.com/v2/blog/{blog-identifier}/notes` | GET | [API Key](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter | Type | Description | Default | Required? |
+| --------- | ---- | ----------- | ------- | --------- |
+| **blog-identifier** | String | Any blog identifier. See the [Blog Identifiers](#blog-identifiers) section for more details. | N/A | Yes |
 
 #### Request Parameters
 
