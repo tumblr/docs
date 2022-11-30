@@ -99,6 +99,38 @@ It's also important to know that, because Tumblr's API works with JSON objects, 
 | any non-json content-type | `true` | Resolves the promise with `{}` |
 | any non-json content-type | `false` | `throw`s an error object |
 
+### `navigate`
+
+Another key difference from the old website is that the modern web app handles the loading of different pages on the client, rather than forcing a new document to be fetched from the server when any link is clicked. This is great for the default experience, but anchors added by third-party tools won't trigger this by default.
+
+This function bridges that gap, allowing you to perform client-side navigations. It takes one parameter: the path of the destination page.
+
+```js
+window.tumblr.navigate('/explore/trending');    // Loads the trending topics page
+window.tumblr.navigate('/staff');               // Loads the Staff blog as a modal
+```
+
+For a more complete example, we can use this to construct a fancy anchor that loads the #photography hub on the client when clicked:
+
+```js
+const handleClick = event => {
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+    // Allow default behaviour of modifier key + click
+    return;
+  }
+
+  event.preventDefault();
+  window.tumblr.navigate(event.currentTarget.href);
+};
+
+const anchor = document.createElement('a');
+anchor.href = '/tagged/photography';
+anchor.textContent = '#photography';
+anchor.addEventListener('click', handleClick);
+```
+
+Please note that this function has no return value and will not throw if given an invalid argument. It also cannot facilitate navigation to pages that exist under `www.tumblr.com` but not within the web app. For example, a plain anchor with `href="/help"` will go to Tumblr's Help Center, while `navigate('/help')` will not.
+
 ### `on()` and `off()`
 These are used to add and remove callbacks for various events that the website sends. The first parameter is the event name, and the second parameter is a function to call when the event happens. This function will return `true` or `false` to indicate whether the addition or removal was successful.
 
