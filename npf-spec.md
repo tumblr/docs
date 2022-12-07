@@ -1904,7 +1904,7 @@ The maximum number of link blocks allowed in a single post is 10.
 
 ### Image Blocks
 
-The maximum number of image blocks allowed in a single post is 10.
+The maximum number of image blocks allowed in a single post is 30.
 
 ### Video Blocks
 
@@ -1930,7 +1930,7 @@ For Asks:
     - No link blocks are allowed. Users can still add inline links in text blocks.
     - Other block types are supported, but any image media will be blurred in asks from blogs you do not follow.
 
-Answers obey the same limits as the usual post content limits above, but note that the count includes the content in the Ask blocks. For example, if the Ask includes 4 image blocks, the Answer can add up to 6 image blocks before hitting the limit of 10.
+Answers obey the same limits as the usual post content limits above, but note that the count includes the content in the Ask blocks. For example, if the Ask includes 12 image blocks, the Answer can add up to 18 image blocks before hitting the limit of 30.
 
 ## Mapping NPF Post Content to Legacy Post Types
 
