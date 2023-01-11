@@ -1995,7 +1995,7 @@ These parameters are used for `/post`, `/post/edit`, and `/post/reblog` methods.
 | --------- | ---- | ----------- | ------- | --------- |
 | **title** | String | The title of the page the link points to, HTML entities should be escaped | None | No |
 | **url** | String | The link | None | Yes |
-| **description** | Strin | A user-supplied description, HTML allowed | None | No |
+| **description** | String | A user-supplied description, HTML allowed | None | No |
 | **thumbnail** | String | The url of an image to use as a thumbnail for the post | None | No |
 | **excerpt** | String | An excerpt from the page the link points to, HTML entities should be escaped | None | No |
 | **author** | String | The name of the author from the page the link points to, HTML entities should be escaped | None | No |
