@@ -831,30 +831,6 @@ When you are creating a link block, you do not need to supply the `display_url` 
 }
 ```
 
-On display of a link block via our API, the `url` field will be a `href.li` redirect, for potential spam prevention and security purposes, and `display_url` will show the original link, which is what we encourage clients to show in the UI:
-
-```JSON
-{
-    "content": {
-        "type": "link",
-        "url": "https://href.li/?stuff-here",
-        "display_url": "https://www.nytimes.com/2017/06/15/us/politics/secrecy-surrounding-senate-health-bill-raises-alarms-in-both-parties.html",
-        "title": "Secrecy Surrounding Senate Health Bill Raises Alarms in Both Parties",
-        "description": "Senate leaders are writing legislation to repeal and replace the Affordable Care Act without a single hearing on the bill and without an open drafting session.",
-        "author": "Thomas Kaplan and Robert Pear",
-        "site_name": "nytimes.com",
-        "poster": [
-            {
-                "url": "https://static01.nyt.com/images/2017/06/15/us/politics/15dchealth-2/15dchealth-2-facebookJumbo.jpg",
-                "type": "image/jpeg",
-                "width": 1050,
-                "height": 549
-            }
-        ]
-    }
-}
-```
-
 ### Content Block Type: Audio
 
 An `audio` block represents a playable track. At a minimum, the `provider` field must be present, and either the `media` field or `url` field must be present. The `provider` field will indicate which embed provider is being used, whether it's `tumblr` for Tumblr native audio content, or a trusted third party like `spotify` or `bandcamp`. Optionally, an `audio` block may include the track's `title`, `artist`, and/or `album`.
