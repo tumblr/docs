@@ -1154,6 +1154,7 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
 | **id_string**             | String           | The post's unique ID as a String                                                               | For clients that don't support 64-bit integers                |
 | **genesis_post_id**       | String           | The post's unique "genesis" ID† as a String                                                    | Only available to the post owner in certain circumstances     |
 | **post_url**              | String           | The location of the post                                                                       |                                                               |
+| **parent_post_url**       | String           | The URL of the parent post, if this is a reblog                                                | Only available if the post is a reblog                        |
 | **type**                  | String           | The type of post                                                                               | See the `type` request parameter                              |
 | **timestamp**             | Number           | The time of the post, in seconds since the epoch                                               |                                                               |
 | **date**                  | String           | The GMT date and time of the post, as a string                                                 |                                                               |
