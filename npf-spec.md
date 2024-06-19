@@ -1566,7 +1566,8 @@ For example:
         {
             "post": {
                 "id": "1234",
-                "timestamp": 1618950000
+                "timestamp": 1618950000,
+                "is_commercial": false
             },
             "blog": {
                 "Standard API Short Blog Info object": "goes here"
@@ -1582,7 +1583,8 @@ For example:
         {
             "post": {
                 "id": "3456",
-                "timestamp": 1618950001
+                "timestamp": 1618950001,
+                "is_commercial": false
             },
             "blog": {
                 "Standard API Short Blog Info object": "goes here"
@@ -1618,7 +1620,7 @@ For example:
 
 Property | Type | Required | Description
 -------- | ---- | -------- | -----------
-`post` | object | no | An object with information about the Post in the reblog trail; contains at least an `id` field and possibly a `timestamp` field for when that post was created. That `id` won't be available for ["broken" trail items](#broken-trail-items).
+`post` | object | no | An object with information about the Post in the reblog trail; contains at least an `id` field and possibly a `timestamp` field for when that post was created and a `is_commercial` field for if the post is marked as commercial. That `id` won't be available for ["broken" trail items](#broken-trail-items).
 `blog` | object | no | An object with information about the Post's blog in the reblog trail; contains at least a `uuid` field. This won't be available for ["broken" trail items](#broken-trail-items).
 `content` | array | yes | The content of the Post in the trail.
 `layout` | array | yes | The layout to use for the content of the Post in the trail.
@@ -1645,7 +1647,8 @@ In these cases, the `trail` array will contain a "broken" trail item which has _
     {
         "broken_blog_name": "another-broken-blog",
         "post": {
-            "timestamp": 1618950000
+            "timestamp": 1618950000,
+            "is_commercial": false
         },
         "content": [
             {

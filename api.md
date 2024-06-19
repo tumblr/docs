@@ -684,7 +684,7 @@ Omitting the `fields` query parameter will return the default set of fields belo
 | **likes**                   | Number  | Number of likes for this user, returned only if this is the user's primary blog and sharing of likes is enabled                                   |
 | **is_blocked_from_primary** | Boolean | Indicates whether this blog has been blocked by the calling user's primary blog; returned only if there is an authenticated user making this call |
 | **avatar**                  | Array   | An array of avatar objects, each a different size, which should each have a width, height, and URL.                                               |
-| **url**                     | String  | The blog's canonical URL                                                                                                                          |
+| **url**                     | String  | The blog's url                                                                                                                                    |
 | **theme**                   | Object  | The blog's general theme options, which may not be useful if the blog uses a custom theme. See next table.                                        |
 
 Specific fields inside of the `theme` object and what they mean:
@@ -1114,19 +1114,23 @@ GET https://api.tumblr.com/v2/blog/YOUR-BLOG.tumblr.com/followed_by?query=staff
 
 #### Query Parameters
 
-| Parameter | Type | Description | Default | Required? |
-| --------- | ---- | ----------- | ------- | --------- |
-| **api_key** | String | Your OAuth Consumer Key See Authentication for more details. | N/A | Yes |
-| **type** | String | The type of post to return. Specify one of the following: text, quote, link, answer, video, audio, photo, chat | None – return all types | No |
-| **id** | Number | A specific post ID. Returns the single post specified or (if not found) a 404 error. | None | No |
-| **tag** | String or Array | Limits the response to posts with the specified tag(s), see note below | None | No |
-| **limit** | Number | The number of posts to return: 1–20, inclusive | 20 | No |
-| **offset** | Number | Post number to start at | 0 (first post) | No |
-| **reblog_info** | Boolean | Indicates whether to return reblog information (specify true or false). Returns the various reblogged_ fields. | False | No |
-| **notes_info** | Boolean | Indicates whether to return notes information (specify true or false). Returns note count and note metadata. | False | No |
-| **filter** | String | Specifies the post format to return, other than HTML: text – Plain text, no HTML; raw – As entered by the user (no post-processing); if the user writes in Markdown, the Markdown will be returned rather than HTML | None (HTML) | No |
-| **before** | Number | Returns posts published earlier than a specified Unix timestamp, in seconds. | False | No |
-| **npf** | Boolean | Returns posts' content in [NPF format](npf-spec.md) instead of the legacy format. | False | No |
+| Parameter       | Type            | Description                                                                                                                                                                                                         | Default                 | Required? |
+|-----------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------| --------- |
+| **api_key**     | String          | Your OAuth Consumer Key See Authentication for more details.                                                                                                                                                        | N/A                     | Yes |
+| **type**        | String          | The type of post to return. Specify one of the following: text, quote, link, answer, video, audio, photo, chat                                                                                                      | None – return all types | No |
+| **id**          | Number          | A specific post ID. Returns the single post specified or (if not found) a 404 error.                                                                                                                                | None                    | No |
+| **tag**         | String or Array | Limits the response to posts with the specified tag(s), see note below                                                                                                                                              | None                    | No |
+| **limit**       | Number          | The number of posts to return: 1–20, inclusive                                                                                                                                                                      | 20                      | No |
+| **offset**      | Number          | Post number to start at                                                                                                                                                                                             | 0 (first post)          | No |
+| **reblog_info** | Boolean         | Indicates whether to return reblog information (specify true or false). Returns the various reblogged_ fields.                                                                                                      | False                   | No |
+| **notes_info**  | Boolean         | Indicates whether to return notes information (specify true or false). Returns note count and note metadata.                                                                                                        | False                   | No |
+| **filter**      | String          | Specifies the post format to return, other than HTML: text – Plain text, no HTML; raw – As entered by the user (no post-processing); if the user writes in Markdown, the Markdown will be returned rather than HTML | None (HTML)             | No |
+| **before**      | Number          | Returns posts published before a specified Unix timestamp, in seconds.                                                                                                                                              | False                   | No |
+| **after**       | Number          | Returns posts published after a specified Unix timestamp, in seconds.                                                                                                                                               | False                   | No |
+| **sort**        | String          | A specific sort order, "desc" for descending, "asc" for ascending.                                                                                                                                                        | "desc"                  | No |
+| **npf**         | Boolean         | Returns posts' content in [NPF format](npf-spec.md) instead of the legacy format.                                                                                                                                   | False                   | No |
+
+By default, the list of posts on a blog is in reverse-chronological order, using the user-set publish time which allows backdating. Note that you cannot use `before` and `offset` in the same request; `before` is best used for paginating through posts. Also, using `after` is best used with `sort` set to `asc`.
 
 Note that `tag` can either be a string or an array of strings:
 
