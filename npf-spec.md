@@ -938,6 +938,7 @@ Property | Type | Required | Description
 `metadata` | object | no | Optional provider-specific metadata about the video.
 `attribution` | [Attribution Object](#attributions) | no | Optional attribution information about where the video came from.
 `can_autoplay_on_cellular` | boolean | no | Whether this video can be played on a cellular connection.
+`duration` | integer | no | The video duration in milliseconds.
 
 A `video` block may have a canonical `url` specified which, when visited in a web browser, will allow the video to be played. If the video can be embedded on a web page, then the block will have an `embed_html` field present and, optionally, the `embed_url`.
 

@@ -76,6 +76,25 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
     - [`/user/filtered_content` - Content Filtering](#userfiltered_content---content-filtering)
 - [Tagged Method](#tagged-method)
     - [`/tagged` – Get Posts with Tag](#tagged--get-posts-with-tag)
+- [Communities Methods](#communities-methods)
+    - [`GET /v2/communities` - List joined communities](#get-v2communities---list-joined-communities)
+    - [`GET /v2/communities/{community-handle}` - Get info about a community](#get-v2communitiescommunity-handle---get-info-about-a-community)
+    - [`PUT /v2/communities/{community-handle}` - Edit your community](#put-v2communitiescommunity-handle---edit-your-community)
+    - [`GET /v2/communities/{community-handle}/timeline` - Get posts from a community](#get-v2communitiescommunity-handletimeline---get-posts-from-a-community)
+    - [`GET /v2/communities/{community-handle}/members` - Get community members](#get-v2communitiescommunity-handlemembers---get-community-members)
+    - [`PUT /v2/communities/{community-handle}/members` - Join a community](#put-v2communitiescommunity-handlemembers---join-a-community)
+    - [`DELETE /v2/communities/{community-handle}/members` - Leave a community](#delete-v2communitiescommunity-handlemembers---leave-a-community)
+    - [`DELETE /v2/communities/{community-handle}/members/{blog-identifier}` - Remove a member](#delete-v2communitiescommunity-handlemembersblog-identifier---remove-a-member)
+    - [`PUT /v2/communities/{community-handle}/members/{blog-identifier}` - Change a member's role](#put-v2communitiescommunity-handlemembersblog-identifier---change-a-members-role)
+    - [`PUT /v2/communities/{community-handle}/invitations` - Invite someone to the community](#put-v2communitiescommunity-handleinvitations---invite-someone-to-the-community)
+    - [`GET /v2/communities/{community-handle}/invitations` - View pending invites](#get-v2communitiescommunity-handleinvitations---view-pending-invites)
+    - [`GET /v2/communities/{community-handle}/invitations/{blog-identifier}` - Check invitation status](#get-v2communitiescommunity-handleinvitationsblog-identifier---check-invitation-status)
+    - [`DELETE /v2/communities/{community-handle}/invitations/{blog-identifier}` - Cancel an invitation](#delete-v2communitiescommunity-handleinvitationsblog-identifier---cancel-an-invitation)
+    - [`POST /v2/communities/{community-handle}/invite_hash` - Regenerate the invite URL](#post-v2communitiescommunity-handleinvite_hash---regenerate-the-invite-url)
+    - [`PUT /v2/communities/{community-handle}/posts/{post-id}/reactions` - Add reaction to post](#put-v2communitiescommunity-handlepostspost-idreactions---add-reaction-to-post)
+    - [`DELETE /v2/communities/{community-handle}/posts/{post-id}/reactions/{reaction-id}` - Remove reaction from post](#delete-v2communitiescommunity-handlepostspost-idreactionsreaction-id---remove-reaction-from-post)
+    - [`PUT /v2/communities/{community-handle}/mute` - Mute a community](#put-v2communitiescommunity-handlemute---mute-a-community)
+    - [`DELETE /v2/communities/{community-handle}/mute` - Unmute a community](#delete-v2communitiescommunity-handlemute---unmute-a-community)
 
 ## What You Need
 
@@ -1179,6 +1198,28 @@ Each response includes a `blog` object that is the equivalent of an `/info` [res
 † The "genesis" ID for a post is only available and different than its current ID if that post had been drafted, queued, or scheduled, and is now published. In which case, the "genesis" ID will be the original post ID generated when drafting, queuing, or scheduling that post. You cannot use this ID to look up the post after it has been published, but it can be useful for tracking a post from its pre- to post-published state.
 
 If `muted: true` and `mute_end_timestamp: 0`, then the post is muted forever. Otherwise, `mute_end_timestamp` is a unix timestamp of when the mute will end. If `muted: false`, then `mute_end_timestamp` will be `0`, but doesn't matter since the post is not muted.
+
+**Fields available for posts from a community:**
+
+| Response Field   | Type    | Description                                              | Notes                                          |
+|------------------|---------|----------------------------------------------------------|------------------------------------------------|
+| **community**    | Object  | Info about the community this post is from               | See the [community info endpoint]()            |
+| **can_react**    | Boolean | Whether the current user can react to this post          |                                                |
+| **can_moderate** | Boolean | Whether the current user can moderate this post          | Only visible for moderators, otherwise omitted |
+| **reactions**    | Array   | The reactions currently on this post                     | See the reaction object below                  |
+| **is_admin** | Boolean | Whether the post author is an admin of the community     | |
+| **is_moderator** | Boolean | Whether the post author is a moderator of the community  | |
+| **post_author** | String | The blog name who authored the post inside the community | |
+| **author_blog** | Object | The blog info object for the post's author | |
+
+Reactions have a specific object for each reaction in the array:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| **emoji** | Object | A description of the emoji reaction, with fields for our unique `id`, the emoji's `grapheme`, `variants`, and `base_slug` used to group them |
+| **count** | Number | How many of this reaction have been used |
+| **preview** | Array | A preview of the blog names of who have used this reaction |
+| **reacted** | Boolean | Whether the current user has reacted to this post |
 
 #### Neue Post Format (NPF) Posts
 
@@ -3026,4 +3067,707 @@ For `DELETE` requests, the endpoint will return a `200 OK` on success, with an e
 | **before** | Integer | The timestamp of when you'd like to see posts before. If the Tag is a "featured" tag, use the "featured_timestamp" on the post object for pagination. | Current timestamp | No |
 | **limit** | Number | The number of results to return: 1–20, inclusive | 20 | No |
 | **filter** | String | Specifies the post format to return, other than HTML: `text` – Plain text, no HTML; `raw` – As entered by the user (no post-processing); if the user writes in Markdown, the Markdown will be returned rather than HTML; | None (HTML) | No |
+
+## Communities Methods
+
+⚠️ **NOTE:** Communities is a brand new beta feature that's under active development. These endpoints may change in backwards-incompatible ways until the feature is fully released.
+
+Communities endpoints often require a "community handle" path parameter, which can be given in one of a few different forms:
+
+- The name of the community, without the double-@ prefix, i.e. `communities-feedback`.
+- The community's unique Tumblr UUID, like [blog unique identifiers](#blog-unique-identifiers). Community objects will include this.
+
+### `GET /v2/communities` - List joined communities
+
+#### Method
+
+| URI                                    | HTTP Method | Authentication |
+|----------------------------------------|-----------| -------------- |
+| `api.tumblr.com/v2/communities` | GET  | [OAuth](#authentication) |
+
+#### Response
+
+The `response` field is an array of your joined communities. See [the next endpoint](#get-v2communitiescommunity-handle---get-info-about-a-community) for the community object definition.
+
+```json
+{
+	"meta": {
+		"status": 200,
+		"msg": "OK"
+	},
+	"response": [
+        { ... }, // community object
+        { ... }, // community object
+    ]
+}
+```
+
+### `GET /v2/communities/{community-handle}` - Get info about a community
+
+#### Method
+
+| URI                                    | HTTP Method | Authentication |
+|----------------------------------------|-----------| -------------- |
+| `api.tumblr.com/v2/communities/{community-handle}` | GET  | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+
+#### Request Query Parameters
+
+| Parameter   | Type   | Description                                                   | Default | Required? |
+|-------------|--------|---------------------------------------------------------------|---------|-----------|
+| **context** | String | The context of what the info will be used for, see note below | None    | No        |
+
+The `context` request parameter can be set to `edit` (i.e. `?context=edit`) to get additional editable parts of the community, like its settings.
+
+#### Response
+
+Community objects contain these fields in the "full" version of the object. Some of them are only visible to certain roles or specific situations.
+
+The "short" abbreviated version of the community object contains only `name`, `uuid`, `title`, `member_count`, `mention_tag`, `can_view`, and `avatar_image`.
+
+| Field                         | Type    | Description                                                              | Visibility                            |
+|-------------------------------|---------|--------------------------------------------------------------------------|---------------------------------------|
+| **name**                      | String  | The name/handle of the community, without the double-@                   | Visible to all                        |
+| **uuid**                      | String  | The [unique identifier](#blog-unique-identifiers) of the community       | Visible to all                        |
+| **title**                     | String  | The title of the community                                               | Visible to all                        |
+| **description**               | String  | The description of the community                                         | Visible to all                        |
+| **about**                     | String  | The About information of the community                                   | Visible to all                        |
+| **guidelines**                | Array   | An array of strings, each a community guideline                          | Visible to all                        |
+| **visibility**                | String  | The community's visibility, `public` or `private`                        | Visible to all                        |
+| **member_count**              | Number  | How many members are in this community                                   | Visible to all                        |
+| **members_online_count**      | Number  | How many members are "online" now                                        | Visible to all                        |
+| **mention_tag**               | String  | The handle of the community, with the double-@                           | Visible to all                        |
+| **is_member**                 | Boolean | Whether the current user is a member of this community                   | Visible to all                        |
+| **can_view**                  | Boolean | Whether the community can be viewed by the current user                  | Visible to all                        |
+| **can_post**                  | Boolean | Whether the current user can post to this community                      | Visible to all                        |
+| **can_edit**                  | Boolean | Whether the current user can edit this community                         | Visible to all                        |
+| **can_interact**              | Boolean | Whether the current user can interact with the posts in this community   | Visible to all                        |
+| **can_invite**                | Boolean | Whether the current user can invite others to this community             | Visible to all                        |
+| **can_view_comments**         | Boolean | Whether the current user can view comments in posts in this community    | Visible to all                        |
+| **post_count**                | Number  | The number of posts published in this community                          | Visible to all                        |
+| **unread_post_count**         | Number  | The number of "unread" posts for the current user                        | Visible to all                        |
+| **tags**                      | Array   | The tags used to describe this community                                 | Visible to all                        |
+| **created_ts**                | Number  | The unix epoch timestamp of when this community was created              | Visible to all                        |
+| **invitation**                | Object  | Information about the current user's invitation                          | Visible if the user has an invitation |
+| **handle_can_change**         | Boolean | Whether the community handle can be changed                              | Visible to admins in "edit" context   |
+| **handle_next_change_ts**     | Boolean | If the handle cannot be changed, this is the next time it can be changed | Visible to admins in "edit" context   |
+| **settings**                  | Object  | The community's current settings values                                  | Visible to admins in "edit" context   |
+| **avatar_image**              | Array   | The community's avatar, in various sizes                                 | Visible to all                        |
+| **header_image**              | Array   | The community's header image, in various sizes                           | Visible to all                        |
+| **population_cap**            | Number  | The population cap of the community, can be `null` if there is none      | Visible to all                        |
+| **join_type**                 | String  | Whether the community is invite-only or free-to-join                     | Visible to all                        |
+| **invite_link**               | String  | The invite link to join the community, can be `null` if disabled         | Visible to admins                       |
+| **pending_invitations_count** | Number | How many pending invitations there are                                   | Visible to admins |
+
+For those who can edit the community, the `settings` object contains:
+
+| Field                    | Type    | Description                                                                                                                |
+|--------------------------|---------|----------------------------------------------------------------------------------------------------------------------------|
+| **invite_links_enabled** | Boolean | Whether an invite link is available for this community                                                                     |
+| **join_type**            | String  | What join options non-members have, can be "free" or "invite". Note that the top-level `join_type` field takes precedence. |
+
+```json
+{
+	"meta": {
+		"status": 200,
+		"msg": "OK"
+	},
+	"response": {
+        "name": "community-name",
+        "uuid": "t:abcd123",
+        "title": "Community Title",
+        "description": "A description of the community",
+        "about": "Nothing here yet",
+        "guidelines": [],
+        "visibility": "public",
+        "member_count": 12,
+        "members_online_count": 10,
+        "mention_tag": "@@community-name",
+        "is_member": true,
+        "can_view": true,
+        "can_post": true,
+        "can_edit": true,
+        "can_interact": true,
+        "can_invite": true,
+        "can_view_comments": true,
+        "post_count": 8,
+        "unread_post_count": 1,
+        "tags": ['tumblr communities'],
+        "created_ts": 1709221499,
+        "invitation": {
+            "type": "direct",
+            "sender": { ... } // blog info object
+        },
+        "handle_can_change": false,
+        "handle_next_change_ts": 1234567890,
+        "settings": {}, // settings object
+        "avatar_image": [
+            {
+                "width": 512,
+                "height": 512,
+                "url": "https://64.media.tumblr.com/bac5b311618185a605d83e7244bfdec3/b26b33c94f644486-87/s512x512u_c1/39187fb2bbf11f92e91f40ca9a15f92041149ee6.pnj"
+            },
+            {
+                "width": 128,
+                "height": 128,
+                "url": "https://64.media.tumblr.com/bac5b311618185a605d83e7244bfdec3/b26b33c94f644486-87/s128x128u_c1/424063b0e2e23d9060dedb40428e05402bfc0078.pnj"
+            },
+            {
+                "width": 96,
+                "height": 96,
+                "url": "https://64.media.tumblr.com/bac5b311618185a605d83e7244bfdec3/b26b33c94f644486-87/s96x96u_c1/25bfccd20b0777a82aa8cb201b6e3d48714a2c41.pnj"
+            },
+            {
+                "width": 64,
+                "height": 64,
+                "url": "https://64.media.tumblr.com/bac5b311618185a605d83e7244bfdec3/b26b33c94f644486-87/s64x64u_c1/a2ed9c2bec1c1c9e39d53fc5df564467dd01f7be.pnj"
+            }
+        ],
+        "population_cap": 9001,
+        "join_type": "invite",
+        "invite_link": "https://www.tumblr.com/join/abcd123",
+        "header_image": [
+            {
+                "type": "image/jpeg",
+                "width": 2048,
+                "height": 1542,
+                "url": "https://64.media.tumblr.com/2ad713f0fa15a3f0517e7c5b217b4c54/32cbed0b10ff7b6c-23/s2048x3072/dad0b45b4740f15510fcb0373b52ecf6a2f7ddee.jpg"
+            },
+            {
+                "type": "image/jpeg",
+                "width": 1280,
+                "height": 963,
+                "url": "https://64.media.tumblr.com/2ad713f0fa15a3f0517e7c5b217b4c54/32cbed0b10ff7b6c-23/s1280x1920/7eb927d8f7e3a563c05e1ba39f3a24c3b1913791.jpg"
+            },
+            {
+                "type": "image/jpeg",
+                "width": 640,
+                "height": 482,
+                "url": "https://64.media.tumblr.com/2ad713f0fa15a3f0517e7c5b217b4c54/32cbed0b10ff7b6c-23/s640x960/4a7d164a3d0e2bffc1225489217e4d172c5f4822.jpg"
+            }
+        ],
+        "pending_invitations_count": 2
+	}
+}
+```
+
+#### Errors
+
+- `403 Forbidden` if you are not allowed to view this:
+    - Error code `23020` signifies that you have been banned from the community.
+    - Error code `23001` signifies that the community is private and you are not a member.
+    - Error code `23002` signifies that you are not a member and you need to be to see the content.
+- `404 Not Found` if the community was not found.
+
+### `PUT /v2/communities/{community-handle}` - Edit your community
+
+#### Method
+
+| URI                                    | HTTP Method | Authentication           |
+|----------------------------------------|-------------|--------------------------|
+| `api.tumblr.com/v2/communities/{community-handle}` | PUT          | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+
+#### Request Body Parameters
+
+The different community fields that are editable:
+
+| Parameter                | Type    | Description                                                       |
+|--------------------------|---------|-------------------------------------------------------------------|
+| **title**                | String  | The title of the community                                        |
+| **description**          | String  | The description/tagline of the community                          |
+| **handle**               | String  | The handle/URL of the community, see note below                   |
+| **privacy**              | Number  | `0` for public, `1` for private                                   |
+| **tags**                 | Array   | An array of strings, each a tag to describe your community        |
+| **about**                | String  | More information about your community                             |
+| **guidelines**           | Array   | An array of strings, each a guideline that members need to follow |
+| **invite_links_enabled** | Boolean | Whether invite links are enabled for your community               |
+| **join_type**            | String  | The type of options for joining, `'invite'` or `'free'`           |
+
+Note that the `handle` can only be edited once every 7 days. When reading a community object, the `handle_can_change` and `handle_next_change_ts` fields will tell you if you can edit this.
+
+Also note that updating the `handle` will invalidate the previous community URL and free up that handle to be taken by another community.
+
+#### Response
+
+`200 OK` on successful save, along with the JSON object for your community, including the additional fields as if `context=edit` had been passed.
+
+#### Errors
+
+- `400 Bad Request` when you've provided an invalid parameter.
+- `403 Forbidden` when you do not have permission to edit this community.
+- `503 Service Unavailable` when we've encountered a problem saving your community.
+
+### `GET /v2/communities/{community-handle}/timeline` - Get posts from a community
+
+#### Method
+
+| URI                                                         | HTTP Method | Authentication           |
+|-------------------------------------------------------------|-------------|--------------------------|
+| `api.tumblr.com/v2/communities/{community-handle}/timeline` | GET         | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------|---------|-----------|
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None    | Yes       |
+
+#### Request Query Parameters
+
+| Parameter   | Type   | Description                                   | Default  | Required? |
+|-------------|--------|-----------------------------------------------|----------|-----------|
+| **type** | String | The type of timeline to visit, see note below | `recent` | No        |
+
+We currently support timelines of type `recent`, `polls`, and `discover`.
+
+#### Response
+
+`200 OK` with a standard timeline response
+
+#### Errors
+
+- `403 Forbidden` when you do not have permission to view this community, see the info endpoint for specific error codes.
+
+### `GET /v2/communities/{community-handle}/members` - Get community members
+
+The list of all members can only be fetched by members, those with a pending invite, an invite code, or if the community is free-to-join and public.
+
+The lists of admins and moderators is always accessible for public communities.
+
+#### Method
+
+| URI                                                        | HTTP Method | Authentication           |
+|------------------------------------------------------------|-------------|--------------------------|
+| `api.tumblr.com/v2/communities/{community-handle}/members` | GET          | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+
+#### Request Query Parameters
+
+| Parameter   | Type   | Description                         | Default | Required? |
+|-------------|--------|-------------------------------------|---------|-----------|
+| **page** | Number | The page of results to fetch | `1` | No |
+| **filter** | String | Filter to a specific set of members | `'all'`   | No        |
+
+The `filter` field, if provided, can have one of these values:
+
+- `'all'` for all members.
+- `'admin'` to list only admins.
+- `'moderator'` to list only moderators.
+- `'following'` to list any blogs the requesting user is following.
+- `'mutual'` to list any blogs the requesting user has a mutual following relationship with.
+
+#### Response
+
+`200 OK` on success. The response will have a `members` array, which contains standard blog info objects for each member.
+
+Each member blog object will also contain additional fields:
+
+| Field         | Type   | Description                                                          |
+|---------------|--------|----------------------------------------------------------------------|
+| **joined_ts** | Number | The unix epoch timestamp of when this member joined.                 |
+| **is_admin**  | Boolean | Whether this member has the "admin" role.                            |
+| **is_moderator**      | Boolean | Whether this member has the "moderator" role.                        |
+| **is_following_you** | Boolean | Whether this member is following the requesting user's primary blog. |
+| **followed** | Boolean | Whether this member is being followed by the requesting user. |
+| **is_mutual**  | Boolean | Whether this member is a mutual of the requesting user.              |
+
+#### Errors
+
+- `403 Forbidden` with all the error codes from the "get info" endpoint.
+
+### `PUT /v2/communities/{community-handle}/members` - Join a community
+
+#### Method
+
+| URI                                                        | HTTP Method | Authentication           |
+|------------------------------------------------------------|-------------|--------------------------|
+| `api.tumblr.com/v2/communities/{community-handle}/members` | PUT         | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+
+#### Request Body Parameters
+
+To join, the request must have one of the following:
+
+- The correct `invite_hash`,
+- or the community is free-to-join,
+- or the requesting user must have a pending invitation.
+
+| Parameter   | Type   | Description                                           | Default | Required? |
+|-------------|--------|-------------------------------------------------------|---------|-----------|
+| **invite_hash** | String | The invite code/hash | None   | No        |
+
+#### Response
+
+`200 OK` on successful join.
+
+#### Errors
+
+- `403 Forbidden` with all the error codes from the "get info" endpoint, but also:
+  - Error code `23003` if the community is already at capacity.
+  - Error code `23015` if the pending invitation no longer exists or was already declined.
+- `400 Bad Request` with error code `23014` if the given invite hash is invalid.
+
+### `DELETE /v2/communities/{community-handle}/members` - Leave a community
+
+#### Method
+
+| URI                                                        | HTTP Method | Authentication           |
+|------------------------------------------------------------|-------------|--------------------------|
+| `api.tumblr.com/v2/communities/{community-handle}/members` | DELETE      | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+
+#### Response
+
+`200 OK` on success.
+
+### `DELETE /v2/communities/{community-handle}/members/{blog-identifier}` - Remove a member
+
+#### Method
+
+| URI                                                                          | HTTP Method | Authentication           |
+|------------------------------------------------------------------------------|-------------|--------------------------|
+| `api.tumblr.com/v2/communities/{community-handle}/members/{blog-identifier}` | DELETE      | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+| **blog-identifier** | String | The blog to remove, see [blog identifiers](#blog-identifiers)         | None | Yes |
+
+#### Request Body Parameters
+
+| Parameter   | Type   | Description                                                                  | Default | Required? |
+|-------------|--------|------------------------------------------------------------------------------|---------|-----------|
+| **reason** | String | The reason for removing the member, see note below                           | None   | Yes       |
+| **note** | String | Why the member is being removed, max length 1,000 characters, see note below | None | Depends   |
+| **ban_user** | Boolean | Whether to also ban the user permenantly from rejoining | `false` | No |
+
+The `reason` value can be:
+
+- `community_guidelines` for community guidelines violations.
+- `off_topic` if their content is off topic.
+- `spam` if their content is considered spam.
+- `inappropriate_behavior` for inappropriate behavior in the community.
+- `tumblr_guidelines` for violating Tumblr's user guidelines.
+- `other` for another reason -- **this requires the "note" parameter to be used as well**
+
+#### Response
+
+`200 OK` on success.
+
+#### Errors
+
+- `403 Forbidden` for anyone trying to do this who isn't an admin of the community
+- `400 Bad Request` if an invalid reason is given, or if a note wasn't given when `reason = 'other'`
+
+### `PUT /v2/communities/{community-handle}/members/{blog-identifier}` - Change a member's role
+
+#### Method
+
+| URI                                                                          | HTTP Method | Authentication           |
+|------------------------------------------------------------------------------|-------------|--------------------------|
+| `api.tumblr.com/v2/communities/{community-handle}/members/{blog-identifier}` | PUT         | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+| **blog-identifier** | String | The blog to change, see [blog identifiers](#blog-identifiers)         | None | Yes |
+
+#### Request Body Parameters
+
+| Parameter | Type   | Description                                                             | Default | Required? |
+|-----------|--------|-------------------------------------------------------------------------|---------|-----------|
+| **role**  | String | Their new role, we currently support `member`, `moderator`, and `admin` | None   | Yes       |
+
+#### Response
+
+`200 OK` on success.
+
+#### Errors
+
+- `400 Bad Request` if you provided an invalid role, or are trying to demote yourself as the last admin.
+- `403 Forbidden` for anyone trying to do this who isn't an admin of the community.
+
+### `PUT /v2/communities/{community-handle}/invitations` - Invite someone to the community
+
+#### Method
+
+| URI                                                                          | HTTP Method | Authentication           |
+|------------------------------------------------------------------------------|-------------|--------------------------|
+| `api.tumblr.com/v2/communities/{community-handle}/invitations` | PUT         | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+
+#### Request Body Parameters
+
+| Parameter | Type   | Description                                                          | Default | Required? |
+|-----------|--------|----------------------------------------------------------------------|---------|-----------|
+| **recipient_blog**  | String | The blog to invite, accepts any [blog identifier](#blog-identifiers) | None   | Yes       |
+| **message** | String | A message to send with the invite, max length 100 characters         | None | No |
+
+#### Response
+
+`200 OK` on success.
+
+#### Errors
+
+- `400 Bad Request` if you're missing a receipient blog in the request.
+  - with error code `5041` if the message is too long.
+- `403 Forbidden` for anyone trying to do this who isn't an admin of the community. Various error codes:
+  - `23003` if the community is at capacity already.
+  - `23008` if the recipient blog, or its owner, has been banned from the community, or otherwise cannot join.
+  - `23009` if the recipient blog is actually already a member.
+  - `23011` if the recipient blog already has an invitation.
+- `429 Limit Exceeded` if sending invites too fast.
+
+#### Limits
+
+Admins can send 250 invites per day, at a maximum rate of 1 per second, across all of their communities.
+
+### `GET /v2/communities/{community-handle}/invitations` - View pending invites
+
+#### Method
+
+| URI                                                                          | HTTP Method | Authentication           |
+|-----------------------------------------------------|-------------|--------------------------|
+| `api.tumblr.com/v2/communities/{community-handle}/invitations` | GET         | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+
+#### Response Query Parameters
+
+| Parameter  | Type   | Description                                     | Default | Required? |
+|------------|--------|-------------------------------------------------|---------|-----------|
+| **before** | Number | The timestamp to use for the next page boundary | None    | No         |
+
+#### Response
+
+`200 OK` on success.
+
+The response will have a `invitations` array of invitations, sorted in reverse chronological order, each with fields:
+
+- `sender` -- a blog object representing who sent the invite.
+- `recipient` -- a blog object representing who was invited.
+- `sent_on` -- the unix timestamp of when the invite was sent.
+
+If there are more than 20 invitations, a `_links` object alongside the `invitations` array will provide the next page info.
+
+### `GET /v2/communities/{community-handle}/invitations/{blog-identifier}` - Check invitation status
+
+This allows you to check the invitation status for a specific blog recipient belonging to the current user.
+
+#### Method
+
+| URI                                                                              | HTTP Method | Authentication           |
+|----------------------------------------------------------------------------------|-------------|--------------------------|
+| `api.tumblr.com/v2/communities/{community-handle}/invitations/{blog-identiifer}` | GET         | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+| **blog-identifier** | String | The blog to check, see [blog identifiers](#blog-identifiers)          | None | Yes |
+
+#### Response
+
+`200 OK` on success, with a `sender` object with a `name` field indicating who sent the invite.
+
+#### Errors
+
+- `404 Not Found` if the given blog does not have an invitation to the community.
+
+### `DELETE /v2/communities/{community-handle}/invitations/{blog-identifier}` - Cancel an invitation
+
+This allows an admin to cancel a pending invitation to a specific blog, and it allows a receipient of an invitation to decline the invite, and disallow future invitations.
+
+#### Method
+
+| URI                                                                              | HTTP Method | Authentication           |
+|----------------------------------------------------------------------------------|-------------|--------------------------|
+| `api.tumblr.com/v2/communities/{community-handle}/invitations/{blog-identiifer}` | DELETE      | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+| **blog-identifier** | String | The blog to cancel, see [blog identifiers](#blog-identifiers)         | None | Yes |
+
+#### Response Query Parameters
+
+| Parameter  | Type    | Description                                   | Default | Required? |
+|------------|---------|-----------------------------------------------|---------|-----------|
+| **do_not_invite** | Boolean | Whether to disallow any future re-invitations | None    | No         |
+
+#### Response
+
+`200 OK` on success.
+
+### `POST /v2/communities/{community-handle}/invite_hash` - Regenerate the invite URL
+
+Allows admins to regenerate the invite URL with a new hash. Note that this invalidates the previous invite link.
+
+#### Method
+
+| URI                                                                              | HTTP Method | Authentication           |
+|----------------------------------------------------------------------------------|-------------|--------------------------|
+| `api.tumblr.com/v2/communities/{community-handle}/invite_hash` | POST         | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------|---------|-----------|
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None    | Yes       |
+
+#### Response
+
+`200 OK` on success, with a `invite_link` field containing the new invite link.
+
+#### Errors
+
+- `403 Forbidden` with error code `23017` if invite links have been disabled for the community.
+  - ... or error code `23012` if the user trying to regenerate the link is not allowed to do so.
+
+### `PUT /v2/communities/{community-handle}/posts/{post-id}/reactions` - Add reaction to post
+
+React to a specific post in a community.
+
+#### Method
+
+| URI                                                  | HTTP Method | Authentication |
+|------------------------------------------------------|-------------| -------------- |
+| `api.tumblr.com/v2/communities/{community-handle}/posts/{post-id}/reactions` | PUT         | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+| **post-id** | String/Number | The post ID to react to | None | Yes |
+
+#### Request Body Parameters
+
+The client must supply **one of these two** body parameters, and `slug` will take precedence if both are provided:
+
+| Parameter                | Type   | Description                                |
+|--------------------------|--------|--------------------------------------------|
+| **slug**                | String | A specific `slug` to use, i.e. :thumbs_up: |
+| **grapheme** | String | A unicode emoji to use, i.e. 👍            |
+
+When using **grapheme**, we'll make a best effort to use that specific unicode character, if we support it.
+
+#### Response
+
+`200 OK` on successful save. The API may return a timeline response with a celebration banner on the first reaction used, or nothing.
+
+#### Errors
+
+- `400 Bad Request` with subcode `22001` - when the post has reached its overall reaction limit.
+- `400 Bad Request` with subcode `22002` - when the current user has reached their reaction limit on this post.
+- `403 Forbidden` with subcode `23002` - when you're trying to react to a post in a community you're not a member of.
+
+### `DELETE /v2/communities/{community-handle}/posts/{post-id}/reactions/{reaction-id}` - Remove reaction from post
+
+Remove your reaction from a specific post in a community.
+
+#### Method
+
+| URI                                                  | HTTP Method | Authentication |
+|------------------------------------------------------|-------------| -------------- |
+| `api.tumblr.com/v2/communities/{community-handle}/posts/{post-id}/reactions/{reaction-id}` | DELETE      | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------|---------|-----------|
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None    | Yes       |
+| **post-id**          | String/Number | The post ID to remove a reaction from                                 | None    | Yes       |
+| **reaction-id**      | String | The unique identifier of the reaction to remove, or its grapheme      | None    | Yes       |
+
+#### Response
+
+`200 OK` on successful removal.
+
+### `PUT /v2/communities/{community-handle}/mute` - Mute a community
+
+Mute the community. Note that this only hides the unread count right now.
+
+#### Method
+
+| URI                                                  | HTTP Method | Authentication |
+|------------------------------------------------------|-------------| -------------- |
+| `api.tumblr.com/v2/communities/{community-handle}/mute` | PUT         | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+
+#### Response
+
+`200 OK` on successful save.
+
+#### Errors
+
+- `403 Forbidden` when you're trying to mute a community you're not a member of.
+
+### `DELETE /v2/communities/{community-handle}/mute` - Unmute a community
+
+#### Method
+
+| URI                                                  | HTTP Method | Authentication |
+|------------------------------------------------------|-------------| -------------- |
+| `api.tumblr.com/v2/communities/{community-handle}/mute` | DELETE       | [OAuth](#authentication) |
+
+#### Request Path Parameters
+
+| Parameter            | Type   | Description                                                           | Default | Required? |
+|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
+| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
+
+#### Response
+
+`200 OK` on successful save.
+
+#### Errors
+
+- `403 Forbidden` when you're trying to unmute a community you're not a member of.
 
