@@ -83,7 +83,6 @@ If you're looking for documentation for the old v1 API, you can find it [here](h
     - [`GET /v2/communities/{community-handle}/timeline` - Get posts from a community](#get-v2communitiescommunity-handletimeline---get-posts-from-a-community)
     - [`GET /v2/communities/{community-handle}/members` - Get community members](#get-v2communitiescommunity-handlemembers---get-community-members)
     - [`PUT /v2/communities/{community-handle}/members` - Join a community](#put-v2communitiescommunity-handlemembers---join-a-community)
-    - [`DELETE /v2/communities/{community-handle}/members` - Leave a community](#delete-v2communitiescommunity-handlemembers---leave-a-community)
     - [`DELETE /v2/communities/{community-handle}/members/{blog-identifier}` - Remove a member](#delete-v2communitiescommunity-handlemembersblog-identifier---remove-a-member)
     - [`PUT /v2/communities/{community-handle}/members/{blog-identifier}` - Change a member's role](#put-v2communitiescommunity-handlemembersblog-identifier---change-a-members-role)
     - [`PUT /v2/communities/{community-handle}/invitations` - Invite someone to the community](#put-v2communitiescommunity-handleinvitations---invite-someone-to-the-community)
@@ -3427,25 +3426,9 @@ To join, the request must have one of the following:
   - Error code `23015` if the pending invitation no longer exists or was already declined.
 - `400 Bad Request` with error code `23014` if the given invite hash is invalid.
 
-### `DELETE /v2/communities/{community-handle}/members` - Leave a community
-
-#### Method
-
-| URI                                                        | HTTP Method | Authentication           |
-|------------------------------------------------------------|-------------|--------------------------|
-| `api.tumblr.com/v2/communities/{community-handle}/members` | DELETE      | [OAuth](#authentication) |
-
-#### Request Path Parameters
-
-| Parameter            | Type   | Description                                                           | Default | Required? |
-|----------------------|--------|-----------------------------------------------------------------------| ------- | --------- |
-| **community-handle** | String | The community handle, see [Communities methods](#communities-methods) | None | Yes |
-
-#### Response
-
-`200 OK` on success.
-
 ### `DELETE /v2/communities/{community-handle}/members/{blog-identifier}` - Remove a member
+
+Remove another member from the community, if you have permission, or your own blog
 
 #### Method
 
@@ -3483,7 +3466,7 @@ The `reason` value can be:
 
 #### Errors
 
-- `403 Forbidden` for anyone trying to do this who isn't an admin of the community
+- `403 Forbidden` for anyone trying to do this who isn't an admin of the community, or not trying to remove their own blog
 - `400 Bad Request` if an invalid reason is given, or if a note wasn't given when `reason = 'other'`
 
 ### `PUT /v2/communities/{community-handle}/members/{blog-identifier}` - Change a member's role
